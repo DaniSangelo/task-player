@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import { Poppins, Raleway } from "next/font/google";
+import { Poppins, Raleway, Inter } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/app/_lib/utils";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const raleway = Raleway({
   variable: "--font-raleway",
@@ -10,7 +13,7 @@ const raleway = Raleway({
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -22,7 +25,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${raleway.variable} ${poppins.variable} h-full antialiased`}
+      className={cn(
+        "h-full",
+        "antialiased",
+        raleway.variable,
+        poppins.variable,
+        "font-sans",
+        inter.variable,
+      )}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
