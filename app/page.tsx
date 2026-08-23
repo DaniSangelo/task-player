@@ -1,5 +1,6 @@
 import Banner from "./_components/Banner";
 import Header from "./_components/Header";
+import DataTable from "./_components/ui/data-table";
 
 export default function Home() {
   return (
@@ -7,13 +8,7 @@ export default function Home() {
       <main className="flex flex-1 w-full max-w-7xl flex-col items-center justify-between py-16 px-16 bg-white sm:items-start border border-accent-400">
         <Header />
         <Banner />
-        <h1 className="text-4xl font-bold text-brand-primary mb-4">
-          Tailwind v4 is Live!
-        </h1>
-        <p className="text-gray-400">
-          Your globals.css file is successfully managing your styling
-          architecture.
-        </p>
+        <DataTable />
       </main>
     </div>
   );
