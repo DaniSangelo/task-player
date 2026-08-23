@@ -1,26 +1,140 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-text-50: #f2f2f2;
+  --color-text-100: #e6e6e6;
+  --color-text-200: #cccccc;
+  --color-text-300: #b3b3b3;
+  --color-text-400: #999999;
+  --color-text-500: #808080;
+  --color-text-600: #666666;
+  --color-text-700: #4d4d4d;
+  --color-text-800: #333333;
+  --color-text-900: #1a1a1a;
+  --color-text-950: #0d0d0d;
+  
+  --color-bg-50: #f2f2f2;
+  --color-bg-100: #e6e6e6;
+  --color-bg-200: #cccccc;
+  --color-bg-300: #b3b3b3;
+  --color-bg-400: #999999;
+  --color-bg-500: #808080;
+  --color-bg-600: #666666;
+  --color-bg-700: #4d4d4d;
+  --color-bg-800: #333333;
+  --color-bg-900: #1a1a1a;
+  --color-bg-950: #0d0d0d;
+  
+  --color-primary-50: #fee7f2;
+  --color-primary-100: #fccfe6;
+  --color-primary-200: #fa9ecc;
+  --color-primary-300: #f76eb3;
+  --color-primary-400: #f53d99;
+  --color-primary-500: #f20d80;
+  --color-primary-600: #c20a66;
+  --color-primary-700: #91084d;
+  --color-primary-800: #610533;
+  --color-primary-900: #30031a;
+  --color-primary-950: #18010d;
+  
+  --color-secondary-50: #fce8f6;
+  --color-secondary-100: #fad1ec;
+  --color-secondary-200: #f5a3da;
+  --color-secondary-300: #f075c7;
+  --color-secondary-400: #eb47b4;
+  --color-secondary-500: #e619a1;
+  --color-secondary-600: #b81481;
+  --color-secondary-700: #8a0f61;
+  --color-secondary-800: #5c0a41;
+  --color-secondary-900: #2e0520;
+  --color-secondary-950: #170310;
+  
+  --color-accent-50: #ffe6ee;
+  --color-accent-100: #ffccdd;
+  --color-accent-200: #fe9abb;
+  --color-accent-300: #fe6799;
+  --color-accent-400: #fe3477;
+  --color-accent-500: #fe0155;
+  --color-accent-600: #cb0144;
+  --color-accent-700: #980133;
+  --color-accent-800: #650122;
+  --color-accent-900: #330011;
+  --color-accent-950: #190009;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --color-text-50: #0d0d0d;
+  --color-text-100: #1a1a1a;
+  --color-text-200: #333333;
+  --color-text-300: #4d4d4d;
+  --color-text-400: #666666;
+  --color-text-500: #808080;
+  --color-text-600: #999999;
+  --color-text-700: #b3b3b3;
+  --color-text-800: #cccccc;
+  --color-text-900: #e6e6e6;
+  --color-text-950: #f2f2f2;
+  
+  --color-bg-50: #0d0d0d;
+  --color-bg-100: #1a1a1a;
+  --color-bg-200: #333333;
+  --color-bg-300: #4d4d4d;
+  --color-bg-400: #666666;
+  --color-bg-500: #808080;
+  --color-bg-600: #999999;
+  --color-bg-700: #b3b3b3;
+  --color-bg-800: #cccccc;
+  --color-bg-900: #e6e6e6;
+  --color-bg-950: #f2f2f2;
+  
+  --color-primary-50: #18010d;
+  --color-primary-100: #30031a;
+  --color-primary-200: #610533;
+  --color-primary-300: #91084d;
+  --color-primary-400: #c20a66;
+  --color-primary-500: #f20d80;
+  --color-primary-600: #f53d99;
+  --color-primary-700: #f76eb3;
+  --color-primary-800: #fa9ecc;
+  --color-primary-900: #fccfe6;
+  --color-primary-950: #fee7f2;
+  
+  --color-secondary-50: #170310;
+  --color-secondary-100: #2e0520;
+  --color-secondary-200: #5c0a41;
+  --color-secondary-300: #8a0f61;
+  --color-secondary-400: #b81481;
+  --color-secondary-500: #e619a1;
+  --color-secondary-600: #eb47b4;
+  --color-secondary-700: #f075c7;
+  --color-secondary-800: #f5a3da;
+  --color-secondary-900: #fad1ec;
+  --color-secondary-950: #fce8f6;
+  
+  --color-accent-50: #190009;
+  --color-accent-100: #330011;
+  --color-accent-200: #650122;
+  --color-accent-300: #980133;
+  --color-accent-400: #cb0144;
+  --color-accent-500: #fe0155;
+  --color-accent-600: #fe3477;
+  --color-accent-700: #fe6799;
+  --color-accent-800: #fe9abb;
+  --color-accent-900: #ffccdd;
+  --color-accent-950: #ffe6ee;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* 5. Aplicar as cores dinâmicas por defeito no Body */
+@layer base {
+  body {
+    background-color: var(--background-50);
+    color: var(--text-900);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-family: var(--font-raleway), system-ui, sans-serif;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-poppins), system-ui, sans-serif;
+  }
 }
