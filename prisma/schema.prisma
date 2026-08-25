@@ -7,6 +7,13 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TaskStatus {
+  PENDING
+  RUNNING
+  PAUSED
+  DONE
+}
+
 model Task {
   id          String                  @id @default(uuid()) @db.Uuid
   title       String                  @db.VarChar
@@ -14,6 +21,7 @@ model Task {
   time_spent  Unsupported("interval") @default(dbgenerated("'00:00:00'::interval"))
   started_at  DateTime?               @db.Timestamp(6)
   finished_at DateTime?               @db.Timestamp(6)
+  status      TaskStatus              @default(PENDING)
   created_at  DateTime?               @default(now()) @db.Timestamp(6)
   updated_at  DateTime?               @updatedAt @db.Timestamp(6)
   user_id     String                  @db.Uuid
