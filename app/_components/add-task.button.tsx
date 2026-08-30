@@ -18,19 +18,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { TaskStatus } from "../generated/prisma/enums";
 import { Controller, useForm } from "react-hook-form";
-import { Form } from "@base-ui/react";
 
 const taskFormSchema = z.object({
   title: z
     .string({ message: "Title is required" })
     .min(5, { message: "Task title must have at least 5 characters" }),
   description: z.string().default(""),
-  time_spent: z
-    .string()
-    .regex(/^(\d+):([0-5]\d):([0-5]\d)$/, "Use the format HH:MM:SS")
-    .default("00:00:00"),
-  started_at: z.date().default(new Date()),
-  finished_at: z.date().default(new Date()),
   user_id: z.string().default("591f1101-7fc0-42d6-babf-5dfc2fc4a605"),
   status: z
     .enum([
@@ -50,19 +43,16 @@ const AddTaskButton = () => {
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
       title: "",
-      user_id: "",
-      status: TaskStatus.PENDING,
       description: "",
-      time_spent: "00:00:00",
-      started_at: new Date(),
-      finished_at: new Date(),
+      status: TaskStatus.PENDING,
+      user_id: "",
     },
     mode: "onSubmit",
     shouldUnregister: true, //clean all previously filled inputs
   });
 
   const onSubmit = async (data: TaskFormSchemaType) => {
-    Promise.resolve(() => setInterval(() => 1 + 1, 1000));
+    // Promise.resolve(() => setInterval(() => 1 + 1, 1000));
     console.log(data);
   };
 
@@ -77,10 +67,10 @@ const AddTaskButton = () => {
         }
       />
       <DialogContent>
-        <DialogHeader className="mb-3">
-          <DialogTitle>Add a new task</DialogTitle>
-        </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)}>
+          <DialogHeader className="mb-3">
+            <DialogTitle>Add a new task</DialogTitle>
+          </DialogHeader>
           <FieldGroup>
             <Controller
               name="title"
@@ -124,11 +114,19 @@ const AddTaskButton = () => {
               )}
             />
           </FieldGroup>
+          <DialogFooter className="mt-6">
+            <DialogClose
+              render={
+                <Button variant="outline" className="rounded-full">
+                  Cancel
+                </Button>
+              }
+            />
+            <Button type="submit" className="rounded-full">
+              Save changes
+            </Button>
+          </DialogFooter>
         </form>
-        <DialogFooter>
-          <DialogClose render={<Button variant="outline" className="rounded-full">Cancel</Button>} />
-          <Button type="submit" className="rounded-full">Save changes</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
