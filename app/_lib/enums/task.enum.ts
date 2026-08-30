@@ -1,5 +1,5 @@
 export enum TaskDescriptionEnum {
-  PENDING = "Pendente",
+  PENDING = "Não iniciada",
   DONE = "Concluída",
   RUNNING = "Em andamento",
   PAUSED = "Pausada",
