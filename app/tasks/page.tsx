@@ -1,8 +1,8 @@
-import { Circle, PlusIcon } from "lucide-react";
+import { Circle } from "lucide-react";
 import { getTasks } from "../_data-access/tasks/get-tasks";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { Button } from "../_components/ui/button";
+import AddTaskButton from "../_components/add-task.button";
 
 export default async function Task() {
   const tasks = await getTasks();
@@ -11,10 +11,7 @@ export default async function Task() {
       <main className="flex flex-1 w-full max-w-7xl flex-col items-center justify-between py-16 px-16 sm:items-star space-y-10">
         <div className="flex flex-col space-y-5">
           <div className="ml-auto">
-            <Button className="rounded-3xl  text-white hover:translate-y-0.5 px-5 py-5 items-center">
-              <PlusIcon className="text-white" />
-              Add task
-            </Button>
+            <AddTaskButton />
           </div>
           <div className="border rounded-md border-accent-100/50">
             <div className="flex px-5 py-5 items-center gap-2 border-accent-100/50 border-b mb-10">
