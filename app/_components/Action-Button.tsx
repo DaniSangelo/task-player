@@ -1,11 +1,12 @@
 "use client";
 
 import { Check, Pause, Play } from "lucide-react";
-import { Task, TaskStatus } from "../generated/prisma/browser";
+import { TaskStatus } from "../generated/prisma/browser";
+import type { TaskTableRow } from "../_data-access/tasks/get-tasks";
 import ControlPlayerButton from "./ui/control-player.button";
 
 interface ActionButtonProps {
-  task: Task;
+  task: TaskTableRow;
 }
 const ActionButton = ({ task }: ActionButtonProps) => {
   switch (task.status) {

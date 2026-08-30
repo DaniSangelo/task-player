@@ -6,11 +6,11 @@ import {
   RowData,
   useTable,
 } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableRow } from "./table";
-import { features } from "../table-columns";
+import { Table, TableBody, TableCell, TableRow } from "../table";
+import { features, type DataTableFeatures } from "./data-table-features"
 
 interface DataTableProps<TData extends RowData> {
-  columns: ColumnDef<typeof features, TData>[];
+  columns: ColumnDef<DataTableFeatures, TData>[];
   data: TData[];
 }
 

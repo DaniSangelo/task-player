@@ -1,8 +1,13 @@
 import { db } from "@/app/_lib/prisma";
-import { Task } from "@/app/generated/prisma/client";
+import type { Task } from "@/app/generated/prisma/client";
 
-export const getTasks = async (): Promise<Task[]> => {
-  return await db.$queryRaw`
+//TODO: extrair o type para outro arquivo
+export type TaskTableRow = Omit<Task, "time_spent"> & {
+  time_spent: string | null;
+};
+
+export const getTasks = async (): Promise<TaskTableRow[]> => {
+  return await db.$queryRaw<TaskTableRow[]>`
     SELECT
       id,
       title,

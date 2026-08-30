@@ -1,28 +1,33 @@
 "use client";
 
-import { ColumnDef, tableFeatures } from "@tanstack/react-table";
-import { Task } from "@/app/generated/prisma/client";
-import { Clock, Square } from "lucide-react";
-import ActionButton from "./Action-Button";
-import { TaskDescriptionEnum, TaskStatusEnum } from "../_lib/enums/task.enum";
+import { createColumnHelper } from "@tanstack/react-table";
 
-export const features = tableFeatures({});
-export const tasksTableColumns: ColumnDef<typeof features, Task>[] = [
-  {
-    accessorKey: "index",
-    header: "",
+import { type DataTableFeatures } from "./data-table-features";
+import ActionButton from "../../Action-Button";
+import {
+  TaskDescriptionEnum,
+  TaskStatusEnum,
+} from "@/app/_lib/enums/task.enum";
+import type { TaskTableRow } from "@/app/_data-access/tasks/get-tasks";
+import { Clock, SquareCheck, Square } from "lucide-react";
+import { Button } from "@base-ui/react";
+
+const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
+
+export const columns = columnHelper.columns([
+  columnHelper.display({
+    id: "index",
     cell: ({ row }) => {
       return (
-        <span className="opacity-40">
+        <span className="opacity-40 text-xs">
           {" "}
           {(row.index + 1).toString().padStart(2, "0")}{" "}
         </span>
       );
     },
-  },
-  {
-    accessorKey: "title",
-    header: "Tarefa",
+  }),
+  columnHelper.accessor("title", {
+    header: "Status",
     cell: ({ row }) => {
       return (
         <div className="flex gap-8 items-center">
@@ -43,9 +48,8 @@ export const tasksTableColumns: ColumnDef<typeof features, Task>[] = [
         </div>
       );
     },
-  },
-  {
-    accessorKey: "description",
+  }),
+  columnHelper.accessor("description", {
     header: "Descrição",
     cell: ({ row }) => {
       return (
@@ -65,9 +69,8 @@ export const tasksTableColumns: ColumnDef<typeof features, Task>[] = [
         </div>
       );
     },
-  },
-  {
-    accessorKey: "time_spent",
+  }),
+  columnHelper.accessor("time_spent", {
     header: "Tempo",
     cell: ({ row }) => {
       return (
@@ -79,12 +82,23 @@ export const tasksTableColumns: ColumnDef<typeof features, Task>[] = [
         </div>
       );
     },
-  },
-  {
-    accessorKey: "check",
-    header: "",
+  }),
+  columnHelper.display({
+    id: "check",
     cell: ({ row }) => {
-      return <Square size={14} />;
+      return (
+        <>
+          {row.original.status !== TaskStatusEnum.DONE ? (
+            <Button type="button" className="cursor-pointer">
+              <Square size={14} />
+            </Button>
+          ) : (
+            <Button type="button" className="cursor-pointer">
+              <SquareCheck size={14} />
+            </Button>
+          )}
+        </>
+      );
     },
-  },
-];
+  }),
+]);
