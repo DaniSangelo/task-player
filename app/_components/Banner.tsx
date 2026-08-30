@@ -1,15 +1,10 @@
-import { PlusIcon } from "lucide-react";
-import { Button } from "./ui/button";
-
 const Banner = () => {
   return (
-    <section className="flex items-center justify-between w-full">
+    <section className="flex items-center justify-center w-full">
       <div className="space-y-0.5">
         <div className="space-y-2">
-          {/* todo: add dynamic data */}
-          <p className="opacity-50">Domingo, 23 de Agosto</p>
           <div className="border-l-3 px-4 space-y-1">
-            <h2 className="text-5xl italic">Mysterious thing, time.</h2>
+            <h2 className="text-5xl italic opacity-90">Mysterious thing, time.</h2>
             <p className="italic text-md">
               Powerful, and when meddled with, dangerous
             </p>
@@ -19,10 +14,6 @@ const Banner = () => {
           Albus Dumbledore
         </p>
       </div>
-      <Button className="rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center">
-        <PlusIcon className="text-white" />
-        Nova tarefa
-      </Button>
     </section>
   );
 };

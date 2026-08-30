@@ -6,9 +6,9 @@ import {
   RowData,
   useTable,
 } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableRow } from "../table";
+import { Table, TableBody, TableCell, TableRow } from "../_components/ui/table";
 import { features, type DataTableFeatures } from "./data-table-features";
-import { Button } from "../button";
+import { Button } from "../_components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTableProps<TData extends RowData> {
@@ -28,9 +28,9 @@ export function DataTable<TData extends RowData>({
     initialState: {
       pagination: {
         pageSize: 5,
-        pageIndex: 0
+        pageIndex: 0,
       },
-    }
+    },
   });
 
   return (
@@ -86,7 +86,7 @@ export function DataTable<TData extends RowData>({
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          <ChevronLeft strokeWidth={3}/>
+          <ChevronLeft strokeWidth={3} />
         </Button>
         <Button
           variant="outline"
@@ -95,7 +95,7 @@ export function DataTable<TData extends RowData>({
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          <ChevronRight strokeWidth={3}/>
+          <ChevronRight strokeWidth={3} />
         </Button>
       </div>
     </div>
