@@ -24,11 +24,17 @@ export function DataTable<TData extends RowData>({
     features,
     columns,
     data,
+    initialState: {
+      pagination: {
+        pageSize: 5,
+        pageIndex: 0
+      },
+    }
   });
 
   return (
     <div>
-      <Table className="bg-primary-50/10 rounded-md">
+      <Table>
         {/* <TableHeader className="border-b-accent-400">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow className="border-none" key={headerGroup.id}>
