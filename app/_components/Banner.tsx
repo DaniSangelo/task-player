@@ -19,12 +19,10 @@ const Banner = () => {
           Albus Dumbledore
         </p>
       </div>
-      <div className="">
-        <Button className="rounded-3xl text-white hover:translate-y-0.5">
-          <PlusIcon className="text-white" />
-          Nova tarefa
-        </Button>
-      </div>
+      <Button className="rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center">
+        <PlusIcon className="text-white" />
+        Nova tarefa
+      </Button>
     </section>
   );
 };
