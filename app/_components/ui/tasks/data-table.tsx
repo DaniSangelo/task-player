@@ -9,6 +9,7 @@ import {
 import { Table, TableBody, TableCell, TableRow } from "../table";
 import { features, type DataTableFeatures } from "./data-table-features";
 import { Button } from "../button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[];
@@ -80,21 +81,21 @@ export function DataTable<TData extends RowData>({
       <div className="flex items-center justify-center space-x-2 py-4">
         <Button
           variant="outline"
-          className="rounded-full text-xs"
+          className="rounded-full p-2"
           size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          Previous
+          <ChevronLeft strokeWidth={3}/>
         </Button>
         <Button
           variant="outline"
-          className="rounded-full text-xs"
+          className="rounded-full p-2"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          Next
+          <ChevronRight strokeWidth={3}/>
         </Button>
       </div>
     </div>

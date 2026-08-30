@@ -75,7 +75,7 @@ export const columns = columnHelper.columns([
     cell: ({ row }) => {
       return (
         <div className="flex gap-2 items-center">
-          <Clock size={16} className="text-accent-950/50" />
+          <Clock size={16} className={`${TaskStatusEnum.DONE !== row.original.status ? 'text-accent-950/50' : ''}`} />
           <span className="font-bold">
             {row.original.time_spent || "00:00:00"}
           </span>
