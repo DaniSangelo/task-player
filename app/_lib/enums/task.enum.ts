@@ -1,8 +1,8 @@
 export enum TaskDescriptionEnum {
-  PENDING = "Não iniciada",
-  DONE = "Concluída",
-  RUNNING = "Em andamento",
-  PAUSED = "Pausada",
+  PENDING = "Not started",
+  DONE = "Done",
+  RUNNING = "In progress",
+  PAUSED = "Paused",
 }
 
 export enum TaskStatusEnum {

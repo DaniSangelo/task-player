@@ -40,7 +40,7 @@ const Header = () => {
                 href="/tasks"
               >
                 {" "}
-                Tarefas{" "}
+                Tasks{" "}
               </Link>
             </li>
           </ul>

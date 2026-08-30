@@ -55,10 +55,10 @@ export const columns = columnHelper.columns([
       return (
         <div className="min-w-0">
           <label
-            className="block font-heading text-[10px] mb-1 text-accent-900 tracking-widest"
+            className="block font-heading text-[10px] mb-1 text-accent-900 tracking-widest uppercase"
             htmlFor={`details-${row.original.id}`}
           >
-            DETALHES
+            details
           </label>
           <input
             id={`details-${row.original.id}`}
