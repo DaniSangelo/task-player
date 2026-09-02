@@ -60,7 +60,7 @@ const AddTaskButton = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger
         render={
-          <Button className="rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center">
+          <Button className="w-full rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center md:w-auto">
             <PlusIcon className="text-white" />
             Add task
           </Button>

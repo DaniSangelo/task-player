@@ -27,14 +27,14 @@ export function DataTable<TData extends RowData>({
     data,
     initialState: {
       pagination: {
-        pageSize: 5,
+        pageSize: 15,
         pageIndex: 0,
       },
     },
   });
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       <Table>
         {/* <TableHeader className="border-b-accent-400">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -59,14 +59,28 @@ export function DataTable<TData extends RowData>({
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
-                className={`${row.original.status === "DONE" ? "bg-secondary/25 text-accent-200" : ""} border-none`}
+                className={`${(row.original as TData & { status?: string }).status === "DONE" ? "bg-secondary/25 text-accent-200" : ""} border-none`}
                 key={row.id}
               >
-                {row.getAllCells().map((cell) => (
-                  <TableCell className="py-3 px-6 min-h-23" key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getAllCells().map((cell) => {
+                  const isResponsive = [
+                    "index",
+                    "description",
+                    "check",
+                  ].includes(cell.column.id);
+
+                  return (
+                    <TableCell
+                      className={`${isResponsive ? "hidden md:table-cell" : ""} min-h-23 px-3 py-3 sm:px-6`}
+                      key={cell.id}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (

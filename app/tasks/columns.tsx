@@ -27,10 +27,10 @@ export const columns = columnHelper.columns([
     },
   }),
   columnHelper.accessor("title", {
-    header: "Status",
+    header: "Title",
     cell: ({ row }) => {
       return (
-        <div className="flex gap-8 items-center">
+        <div className="flex items-center gap-3 sm:gap-8">
           <ActionButton task={row.original} />
           <div className="flex flex-col space-y-4">
             <span
