@@ -35,7 +35,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         inter.variable,
       )}
     >
-      <body className="min-h-full flex flex-col bg-white">
+      <body
+        className="min-h-full flex flex-col bg-white"
+        suppressHydrationWarning
+      >
         <Header />
         {children}
       </body>
