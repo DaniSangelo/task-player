@@ -15,32 +15,15 @@ import {
 import { Input } from "./ui/input";
 import { Field, FieldError, FieldGroup, FieldLabel } from "./ui/field";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { TaskStatus } from "../generated/prisma/enums";
 import { Controller, useForm } from "react-hook-form";
-
-const taskFormSchema = z.object({
-  title: z
-    .string({ message: "Title is required" })
-    .min(5, { message: "Task title must have at least 5 characters" }),
-  description: z.string().default(""),
-  user_id: z.string().default("591f1101-7fc0-42d6-babf-5dfc2fc4a605"),
-  status: z
-    .enum([
-      TaskStatus.PENDING,
-      TaskStatus.RUNNING,
-      TaskStatus.PAUSED,
-      TaskStatus.DONE,
-    ])
-    .default(TaskStatus.PENDING),
-});
-
-type TaskFormSchemaType = z.input<typeof taskFormSchema>;
+import { addTask } from "../_actions/task/add-task";
+import { addTaskSchema, AddTaskSchema } from "../_actions/task/add-task/schema";
 
 const AddTaskButton = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const form = useForm<TaskFormSchemaType>({
-    resolver: zodResolver(taskFormSchema),
+  const form = useForm<AddTaskSchema>({
+    resolver: zodResolver(addTaskSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -51,9 +34,14 @@ const AddTaskButton = () => {
     shouldUnregister: true, //clean all previously filled inputs
   });
 
-  const onSubmit = async (data: TaskFormSchemaType) => {
-    // Promise.resolve(() => setInterval(() => 1 + 1, 1000));
-    console.log(data);
+  const onSubmit = async (data: AddTaskSchema) => {
+    try {
+      await addTask(data);
+    } catch (error) {
+      console.log(`Something went wrong on add a new task: ${error?.message}`)
+    } finally {
+      setIsOpen(false);
+    }
   };
 
   return (
