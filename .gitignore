@@ -45,5 +45,7 @@ next-env.d.ts
 .agents
 .claude
 .windsurf
-/prisma/migrations/
+/prisma/migrations/*
+!/prisma/migrations/20260905120000_add_task_progress_history/
+!/prisma/migrations/20260905120000_add_task_progress_history/migration.sql
 skills-lock.json
