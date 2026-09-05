@@ -6,6 +6,7 @@ import {
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import AddTaskButton from "../_components/add-task.button";
+import { DatePickerInput } from "../_components/ui/date-picker";
 
 export default async function Task() {
   const [tasks, dailyWorkedSeconds] = await Promise.all([
@@ -28,17 +29,21 @@ export default async function Task() {
         <div className="flex w-full min-w-0 flex-col space-y-5">
           <div className="w-full md:ml-auto md:w-auto">
             <div className="md:flex gap-5 items-center">
-              <h3 className="font-semibold text-accent-900">{today}</h3>
               <AddTaskButton />
             </div>
           </div>
           <div className="w-full min-w-0 overflow-hidden rounded-md border border-accent-100/50">
-            <div className="flex px-5 py-5 items-center gap-2 border-accent-100/50 border-b mb-10">
-              <Circle size={10} className="fill-accent-500 text-accent-500" />
-              <p className="text-sm">Today&#39;s tasks</p>
-              <p className="text-[10px] text-secondary-500 bg-accent-50 rounded-full py-1 px-2">
-                {tasks.length}
-              </p>
+            <div className="flex items-center justify-between border-accent-100/50 border-b mb-10">
+              <div className="flex px-5 py-5 items-center gap-2">
+                <Circle size={10} className="fill-accent-500 text-accent-500" />
+                <p className="text-sm">Today&#39;s tasks</p>
+                <p className="text-[10px] text-secondary-500 bg-accent-50 rounded-full py-1 px-2">
+                  {tasks.length}
+                </p>
+              </div>
+              <div className="m-2 text-sm">
+                <DatePickerInput />
+              </div>
             </div>
             <DataTable columns={columns} data={tasks} />
           </div>
