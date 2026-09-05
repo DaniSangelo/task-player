@@ -23,6 +23,7 @@ import { TaskDescriptionEnum, TaskStatusEnum } from "../_lib/enums/task.enum";
 import ActionButton from "../_components/Action-Button";
 import type { ComponentProps } from "react";
 import TaskTime from "../_components/Task-Time";
+import { Badge } from "../_components/ui/badge";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[];
@@ -148,11 +149,21 @@ export function DataTable<TData extends RowData>({
                 </p>
               </CardContent>
               <CardFooter>
-                <p
-                  className={`${status == TaskStatusEnum.RUNNING ? "text-accent-700" : ""}`}
+                <Badge
+                  className={`
+                    rounded-full p-1
+                    ${
+                      status === TaskStatusEnum.RUNNING
+                        ? "text-accent-300 fill-accent-300 bg-accent-700"
+                        : status === TaskStatusEnum.DONE
+                          ? "outline-1 outline-accent-400 text-accent-300"
+                          : "bg-secondary/25 text-accent-700"
+                    }
+                  `}
+                  variant="outline"
                 >
                   {statusLabel}
-                </p>
+                </Badge>
               </CardFooter>
             </Card>
           );

@@ -12,8 +12,8 @@ import type { TaskTableRow } from "@/app/_data-access/tasks/get-tasks";
 import { Clock, SquareCheck, Square } from "lucide-react";
 import TaskTime from "../_components/Task-Time";
 import DeleteTaskButton from "../_components/delete-task.button";
-import { Button } from "../_components/ui/button";
 import DoneUndoneTaskButton from "../_components/done-undone-task.button";
+import { Badge } from "../_components/ui/badge";
 
 const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
 
@@ -41,12 +41,21 @@ export const columns = columnHelper.columns([
             >
               {row.original.title}
             </span>
-            <p
-              className={`text-xs ${TaskStatusEnum.RUNNING === row.original.status ? "text-accent-700" : ""}`}
+            <Badge
+              className={`
+                rounded-full p-1 ${
+                  row.original.status === TaskStatusEnum.RUNNING
+                    ? "text-accent-300 fill-accent-300 bg-accent-700"
+                    : row.original.status === TaskStatusEnum.DONE
+                      ? 'outline-1 outline-accent-400 text-accent-300'
+                      : 'bg-secondary/25 text-accent-700'
+                  }
+                `}
+              variant="outline"
             >
-              {" "}
-              {TaskDescriptionEnum[row.original.status]}{" "}
-            </p>
+              {TaskDescriptionEnum[row.original.status]}
+            </Badge>
+            {/* </p> */}
           </div>
         </div>
       );
@@ -96,9 +105,17 @@ export const columns = columnHelper.columns([
         <div className="flex items-center justify-center gap-1 p-0.5">
           <div className="">
             {row.original.status !== TaskStatusEnum.DONE ? (
-              <DoneUndoneTaskButton task={row.original} icon={Square} status={TaskStatusEnum.DONE}/>
+              <DoneUndoneTaskButton
+                task={row.original}
+                icon={Square}
+                status={TaskStatusEnum.DONE}
+              />
             ) : (
-              <DoneUndoneTaskButton task={row.original} icon={SquareCheck} status={TaskStatusEnum.PENDING}/>
+              <DoneUndoneTaskButton
+                task={row.original}
+                icon={SquareCheck}
+                status={TaskStatusEnum.PENDING}
+              />
             )}
           </div>
           <div className="">
