@@ -28,3 +28,38 @@ export const getTasks = async (): Promise<TaskTableRow[]> => {
         END,
       updated_at DESC`
 }
+
+/**
+ * Sums only the portion of each progress session that belongs to the day.
+ *
+ * A session that crosses midnight is sliced by the SQL expression below:
+ * `GREATEST(started_at, startOfDay)` selects the effective start and
+ * `LEAST(finished_at, endOfDay)` selects the effective finish. The difference
+ * between those two timestamps is therefore the slice assigned to this day.
+ */
+export const getDailyWorkedSeconds = async (
+  userId = "591f1101-7fc0-42d6-babf-5dfc2fc4a605",
+  day = new Date(),
+): Promise<number> => {
+  const startOfDay = new Date(day);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
+  const result = await db.$queryRaw<{ total_seconds: number | null }[]>`
+    SELECT COALESCE(
+      SUM(EXTRACT(EPOCH FROM (
+        LEAST(history.finished_at, ${endOfDay})
+        - GREATEST(history.started_at, ${startOfDay})
+      ))),
+      0
+    )::double precision AS total_seconds
+    FROM task_progress_history AS history
+    INNER JOIN tasks AS task ON task.id = history.task_id
+    WHERE task.user_id = ${userId}::uuid
+      AND history.started_at < ${endOfDay}
+      AND history.finished_at > ${startOfDay}
+  `;
+
+  return result[0]?.total_seconds ?? 0;
+};

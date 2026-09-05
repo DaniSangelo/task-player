@@ -4,6 +4,7 @@ import { db } from "@/app/_lib/prisma";
 import { UpdateTaskStatusSchema } from "./schema";
 import { revalidatePath } from "next/cache";
 import { updateTaskStatusSchema } from "./schema";
+import { closeTaskProgress } from "@/app/_lib/task-progress";
 
 export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
   const data = updateTaskStatusSchema.parse(task);
@@ -31,27 +32,19 @@ export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
     }
 
     if (currentTask.status === "RUNNING") {
-      await transaction.$executeRaw`
-        UPDATE tasks
-        SET
-          time_spent = time_spent + COALESCE(CURRENT_TIMESTAMP - started_at, INTERVAL '0 seconds'),
-          started_at = NULL,
-          status = 'PAUSED',
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = ${data.id}::uuid
-          AND user_id = ${data.user_id}::uuid
-      `;
+      await closeTaskProgress(transaction, data.id, data.user_id);
     } else if (currentTask.status === "PENDING" || currentTask.status === "PAUSED") {
-      await transaction.$executeRaw`
-        UPDATE tasks
-        SET
-          time_spent = time_spent + COALESCE(CURRENT_TIMESTAMP - started_at, INTERVAL '0 seconds'),
-          started_at = NULL,
-          status = 'PAUSED',
-          updated_at = CURRENT_TIMESTAMP
+      const runningTasks = await transaction.$queryRaw<{ id: string }[]>`
+        SELECT id
+        FROM tasks
         WHERE user_id = ${data.user_id}::uuid
           AND status = 'RUNNING'
+        FOR UPDATE
       `;
+
+      for (const runningTask of runningTasks) {
+        await closeTaskProgress(transaction, runningTask.id, data.user_id);
+      }
 
       await transaction.$executeRaw`
         UPDATE tasks
