@@ -8,6 +8,7 @@ import { closeTaskProgress } from "@/app/_lib/task-progress";
 
 export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
   const data = updateTaskStatusSchema.parse(task);
+  const stoppedTaskIds: string[] = [];
 
   const updatedTask = await db.$transaction(async (transaction) => {
     await transaction.$executeRaw`
@@ -43,6 +44,7 @@ export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
       `;
 
       for (const runningTask of runningTasks) {
+        stoppedTaskIds.push(runningTask.id);
         await closeTaskProgress(transaction, runningTask.id, data.user_id);
       }
 
@@ -75,7 +77,7 @@ export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
         AND user_id = ${data.user_id}::uuid
     `;
 
-    return updatedTasks[0];
+    return { ...updatedTasks[0], stoppedTaskIds };
   });
 
   revalidatePath("/tasks");

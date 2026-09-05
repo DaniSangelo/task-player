@@ -4,7 +4,7 @@ import { Check, LoaderCircle, Pause, Play } from "lucide-react";
 import { TaskStatus } from "../generated/prisma/browser";
 import type { TaskTableRow } from "../_data-access/tasks/get-tasks";
 import ControlPlayerButton from "./ui/control-player.button";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { updateTaskStatus } from "../_actions/task/update-task-status";
 import { TaskStatusEnum } from "../_lib/enums/task.enum";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,13 @@ import { useRouter } from "next/navigation";
 interface ActionButtonProps {
   task: TaskTableRow;
 }
+
+interface TaskStatusChangedEvent extends CustomEvent {
+  detail: {
+    stoppedTaskIds: string[];
+  };
+}
+
 const ActionButton = ({ task }: ActionButtonProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -23,6 +30,26 @@ const ActionButton = ({ task }: ActionButtonProps) => {
     optimisticState?.baseStatus === task.status
       ? optimisticState.status
       : task.status;
+
+  useEffect(() => {
+    const handleTaskStatusChanged = (event: Event) => {
+      const { stoppedTaskIds } = (event as TaskStatusChangedEvent).detail;
+      if (!stoppedTaskIds.includes(task.id)) return;
+
+      setOptimisticState({
+        baseStatus: task.status as TaskStatusEnum,
+        status: TaskStatusEnum.PAUSED,
+      });
+    };
+
+    window.addEventListener("task-status-changed", handleTaskStatusChanged);
+    return () => {
+      window.removeEventListener(
+        "task-status-changed",
+        handleTaskStatusChanged,
+      );
+    };
+  }, [task.id, task.status]);
 
   const handleTaskProgress = () => {
     if (isPending) return;
@@ -50,6 +77,11 @@ const ActionButton = ({ task }: ActionButtonProps) => {
           baseStatus: task.status as TaskStatusEnum,
           status: updatedTask.status as TaskStatusEnum,
         });
+        window.dispatchEvent(
+          new CustomEvent("task-status-changed", {
+            detail: { stoppedTaskIds: updatedTask.stoppedTaskIds },
+          }),
+        );
         router.refresh();
       } catch {
         setOptimisticState({
