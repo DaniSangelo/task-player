@@ -3,7 +3,7 @@ import type { Task } from "@/app/generated/prisma/client";
 
 //TODO: extrair o type para outro arquivo
 export type TaskTableRow = Omit<Task, "time_spent"> & {
-  time_spent: string | null;
+  time_spent: number;
 };
 
 export const getTasks = async (): Promise<TaskTableRow[]> => {
@@ -12,7 +12,7 @@ export const getTasks = async (): Promise<TaskTableRow[]> => {
       id,
       title,
       description,
-      time_spent::text AS time_spent,
+      EXTRACT(EPOCH FROM time_spent)::double precision AS time_spent,
       started_at,
       finished_at,
       created_at,
