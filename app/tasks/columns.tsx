@@ -13,6 +13,7 @@ import { Clock, SquareCheck, Square } from "lucide-react";
 import TaskTime from "../_components/Task-Time";
 import DeleteTaskButton from "../_components/delete-task.button";
 import { Button } from "../_components/ui/button";
+import DoneTaskButton from "../_components/done-task.button";
 
 const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
 
@@ -95,11 +96,14 @@ export const columns = columnHelper.columns([
         <div className="flex items-center justify-center gap-1 p-0.5">
           <div className="">
             {row.original.status !== TaskStatusEnum.DONE ? (
-              <Button type="button" variant="none" className="cursor-pointer" size="sm">
-                <Square size={14} />
-              </Button>
+              <DoneTaskButton task={row.original} icon={Square} />
             ) : (
-              <Button type="button" variant="none" className="cursor-pointer" size="sm">
+              <Button
+                type="button"
+                variant="none"
+                className="cursor-pointer"
+                size="sm"
+              >
                 <SquareCheck size={14} />
               </Button>
             )}
