@@ -19,6 +19,7 @@ const ControlPlayerButton: React.FC<CustomButtonProps> = ({
   icon: IconComponent,
   iconProps = {},
   className,
+  ...rest
 }) => {
   return (
     <Button
@@ -26,6 +27,7 @@ const ControlPlayerButton: React.FC<CustomButtonProps> = ({
       variant="none"
       size="xs"
       className={cn("hover:cursor-pointer bg-accent-100 rounded-full transition-transform duration-200 hover:scale-[1.08] text-accent-500 p-2", className)}
+      {...rest}
     >
       {IconComponent && (
         <IconComponent
