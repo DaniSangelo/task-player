@@ -29,7 +29,11 @@ export const getTasks = async (day: string): Promise<TaskTableRow[]> => {
       task.user_id,
       task.status
     FROM tasks AS task
-    WHERE EXISTS (
+    WHERE (
+      task.created_at >= ${day}::date
+      AND task.created_at < ${day}::date + INTERVAL '1 day'
+    )
+    OR EXISTS (
       SELECT 1
       FROM task_progress_history AS history
       WHERE history.task_id = task.id
