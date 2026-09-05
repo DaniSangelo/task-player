@@ -15,19 +15,34 @@ enum TaskStatus {
 }
 
 model Task {
-  id          String                  @id @default(uuid()) @db.Uuid
-  title       String                  @db.VarChar
-  description String?                 @db.VarChar
-  time_spent  Unsupported("interval") @default(dbgenerated("'00:00:00'::interval"))
-  started_at  DateTime?               @db.Timestamp(6)
-  finished_at DateTime?               @db.Timestamp(6)
-  status      TaskStatus              @default(PENDING)
-  created_at  DateTime?               @default(now()) @db.Timestamp(6)
-  updated_at  DateTime?               @updatedAt @db.Timestamp(6)
-  user_id     String                  @db.Uuid
-  user        user                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tasks_user")
+  id               String                  @id @default(uuid()) @db.Uuid
+  title            String                  @db.VarChar
+  description      String?                 @db.VarChar
+  time_spent       Unsupported("interval") @default(dbgenerated("'00:00:00'::interval"))
+  started_at       DateTime?               @db.Timestamp(6)
+  finished_at      DateTime?               @db.Timestamp(6)
+  status           TaskStatus              @default(PENDING)
+  created_at       DateTime?               @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?               @updatedAt @db.Timestamp(6)
+  user_id          String                  @db.Uuid
+  user             user                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tasks_user")
+  progress_history TaskProgressHistory[]
 
   @@map("tasks")
+}
+
+model TaskProgressHistory {
+  id                 String   @id @default(uuid()) @db.Uuid
+  task_id            String   @db.Uuid
+  time_spent_seconds Int
+  started_at         DateTime @db.Timestamp(6)
+  finished_at        DateTime @db.Timestamp(6)
+  created_at         DateTime @default(now()) @db.Timestamp(6)
+  updated_at         DateTime @updatedAt @db.Timestamp(6)
+  task               Task     @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([task_id, started_at, finished_at])
+  @@map("task_progress_history")
 }
 
 model user {
