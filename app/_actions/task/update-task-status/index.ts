@@ -1,0 +1,90 @@
+"use server";
+
+import { db } from "@/app/_lib/prisma";
+import { UpdateTaskStatusSchema } from "./schema";
+import { revalidatePath } from "next/cache";
+import { updateTaskStatusSchema } from "./schema";
+
+export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
+  const data = updateTaskStatusSchema.parse(task);
+
+  const updatedTask = await db.$transaction(async (transaction) => {
+    await transaction.$executeRaw`
+      SELECT pg_advisory_xact_lock(hashtextextended(${data.user_id}::text, 0))
+    `;
+
+    const currentTasks = await transaction.$queryRaw<{
+      id: string;
+      status: string;
+      started_at: Date | null;
+    }[]>`
+      SELECT id, status, started_at
+      FROM tasks
+      WHERE id = ${data.id}::uuid
+        AND user_id = ${data.user_id}::uuid
+      FOR UPDATE
+    `;
+
+    const currentTask = currentTasks[0];
+    if (!currentTask) {
+      throw new Error("Task not found");
+    }
+
+    if (currentTask.status === "RUNNING") {
+      await transaction.$executeRaw`
+        UPDATE tasks
+        SET
+          time_spent = time_spent + COALESCE(CURRENT_TIMESTAMP - started_at, INTERVAL '0 seconds'),
+          started_at = NULL,
+          status = 'PAUSED',
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${data.id}::uuid
+          AND user_id = ${data.user_id}::uuid
+      `;
+    } else if (currentTask.status === "PENDING" || currentTask.status === "PAUSED") {
+      await transaction.$executeRaw`
+        UPDATE tasks
+        SET
+          time_spent = time_spent + COALESCE(CURRENT_TIMESTAMP - started_at, INTERVAL '0 seconds'),
+          started_at = NULL,
+          status = 'PAUSED',
+          updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ${data.user_id}::uuid
+          AND status = 'RUNNING'
+      `;
+
+      await transaction.$executeRaw`
+        UPDATE tasks
+        SET status = 'RUNNING', started_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${data.id}::uuid
+          AND user_id = ${data.user_id}::uuid
+      `;
+    } else if (currentTask.status === "DONE") {
+      await transaction.$executeRaw`
+        UPDATE tasks
+        SET status = 'PAUSED', updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${data.id}::uuid
+          AND user_id = ${data.user_id}::uuid
+      `;
+    }
+
+    const updatedTasks = await transaction.$queryRaw<{
+      status: string;
+      time_spent: number;
+      started_at: Date | null;
+    }[]>`
+      SELECT
+        status,
+        EXTRACT(EPOCH FROM time_spent)::double precision AS time_spent,
+        started_at
+      FROM tasks
+      WHERE id = ${data.id}::uuid
+        AND user_id = ${data.user_id}::uuid
+    `;
+
+    return updatedTasks[0];
+  });
+
+  revalidatePath("/tasks");
+  return updatedTask;
+}
