@@ -55,15 +55,15 @@ export default async function Task({ searchParams }: PageProps<"/tasks">) {
             </div>
           </div>
           <div className="w-full min-w-0 overflow-hidden rounded-md border border-accent-100/50">
-            <div className="flex items-center justify-between border-accent-100/50 border-b mb-10">
-              <div className="flex px-5 py-5 items-center gap-2">
+            <div className="mb-10 flex flex-col gap-3 border-b border-accent-100/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:py-0">
+              <div className="flex items-center gap-2 sm:py-5">
                 <Circle size={10} className="fill-accent-500 text-accent-500" />
-                <p className="text-sm">Today&#39;s tasks</p>
+                <p className="whitespace-nowrap text-sm">Today&#39;s tasks</p>
                 <p className="text-[10px] text-secondary-500 bg-accent-50 rounded-full py-1 px-2">
                   {tasks.length}
                 </p>
               </div>
-              <div className="m-2 text-sm">
+              <div className="self-center text-sm sm:m-2">
                 <DatePickerInput
                   key={selectedDayParam}
                   selectedDay={selectedDayParam}
