@@ -1,6 +1,6 @@
 const Banner = () => {
   return (
-    <section className="flex items-center justify-center w-full">
+    <section className="flex items-center pb-46 justify-center w-full min-h-screen">
       <div className="space-y-0.5">
         <div className="space-y-2">
           <div className="border-l-3 px-4 space-y-1">
