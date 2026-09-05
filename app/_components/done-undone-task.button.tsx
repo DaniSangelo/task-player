@@ -1,7 +1,8 @@
 import { ButtonHTMLAttributes, ComponentType } from "react";
 import { Task } from "../generated/prisma/client";
 import { Button } from "./ui/button";
-import { updateTaskStatusToDone } from "../_actions/task/task-to-done";
+import { updateTaskStatusToDoneOrUndone } from "../_actions/task/task-to-done";
+import { TaskStatusEnum } from "../_lib/enums/task.enum";
 
 interface IconProps {
   size?: string | number;
@@ -13,21 +14,24 @@ interface IconProps {
 
 interface DoneTaskButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   task: Task;
+  status: TaskStatusEnum;
   icon?: ComponentType<IconProps>;
   iconProps?: IconProps;
 }
 
-const DoneTaskButton = ({
+const DoneUndoneTaskButton = ({
   task,
+  status,
   icon: IconComponent,
   iconProps = {},
   ...rest
 }: DoneTaskButtonProps) => {
   const handleDoneTaskClick = async () => {
     try {
-      await updateTaskStatusToDone({
+      await updateTaskStatusToDoneOrUndone({
         id: task.id,
         user_id: task.user_id,
+        status,
       });
     } catch (error) {
       console.log(error);
@@ -48,4 +52,4 @@ const DoneTaskButton = ({
   );
 };
 
-export default DoneTaskButton;
+export default DoneUndoneTaskButton;

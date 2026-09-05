@@ -5,7 +5,7 @@ import { doneTaskSchema, DoneTaskSchema } from "./schema"
 import { TaskStatusEnum } from "@/app/_lib/enums/task.enum"
 import { revalidatePath } from "next/cache"
 
-export const updateTaskStatusToDone = async (task: DoneTaskSchema) => {
+export const updateTaskStatusToDoneOrUndone = async (task: DoneTaskSchema) => {
   const data = doneTaskSchema.parse(task);
 
   await db.task.update({
@@ -14,9 +14,9 @@ export const updateTaskStatusToDone = async (task: DoneTaskSchema) => {
       user_id: data.user_id,
     },
     data: {
-      status: TaskStatusEnum.DONE,
+      status: task.status,
       updated_at: new Date(),
-      finished_at: new Date(),
+      finished_at: task.status === TaskStatusEnum.DONE ? new Date() : null,
     }
   })
 
