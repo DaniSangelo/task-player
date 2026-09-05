@@ -10,8 +10,9 @@ import {
 } from "@/app/_lib/enums/task.enum";
 import type { TaskTableRow } from "@/app/_data-access/tasks/get-tasks";
 import { Clock, SquareCheck, Square } from "lucide-react";
-import { Button } from "@base-ui/react";
 import TaskTime from "../_components/Task-Time";
+import DeleteTaskButton from "../_components/delete-task.button";
+import { Button } from "../_components/ui/button";
 
 const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
 
@@ -88,20 +89,25 @@ export const columns = columnHelper.columns([
     },
   }),
   columnHelper.display({
-    id: "check",
+    id: "actions",
     cell: ({ row }) => {
       return (
-        <>
-          {row.original.status !== TaskStatusEnum.DONE ? (
-            <Button type="button" className="cursor-pointer">
-              <Square size={14} />
-            </Button>
-          ) : (
-            <Button type="button" className="cursor-pointer">
-              <SquareCheck size={14} />
-            </Button>
-          )}
-        </>
+        <div className="flex items-center justify-center gap-1 p-0.5">
+          <div className="">
+            {row.original.status !== TaskStatusEnum.DONE ? (
+              <Button type="button" variant="none" className="cursor-pointer" size="sm">
+                <Square size={14} />
+              </Button>
+            ) : (
+              <Button type="button" variant="none" className="cursor-pointer" size="sm">
+                <SquareCheck size={14} />
+              </Button>
+            )}
+          </div>
+          <div className="">
+            <DeleteTaskButton task={row.original} />
+          </div>
+        </div>
       );
     },
   }),
