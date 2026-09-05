@@ -73,17 +73,21 @@ export default async function Task({ searchParams }: PageProps<"/tasks">) {
             <DataTable columns={columns} data={tasks} />
           </div>
           <footer className="flex w-full px-2 py-8">
-            <div className="flex flex-col items-start ml-auto">
-              <p className="tracking-widest font-heading uppercase text-xs font-semibold text-accent-950/50">
-                Total time worked
-              </p>
-              <div className="flex gap-2 items-baseline">
-                <p className="text-4xl font-bold text-accent-950">
-                  {hours}:{minutes}:{seconds}
+            {tasks.length ? (
+              <div className="flex flex-col md:items-start md:ml-auto w-full md:w-fit items-center">
+                <p className="tracking-widest font-heading uppercase text-xs font-semibold text-accent-950/50">
+                  Total time worked
                 </p>
-                <p className="text-sm opacity-50">hours</p>
+                <div className="flex gap-2 items-baseline">
+                  <p className="text-4xl font-bold text-accent-950">
+                    {hours}:{minutes}:{seconds}
+                  </p>
+                  <p className="text-sm opacity-50">hours</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <></>
+            )}
           </footer>
         </div>
       </main>
