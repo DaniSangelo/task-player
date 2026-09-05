@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2Icon } from "lucide-react";
+import { LoaderCircle, Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deleteTask } from "../_actions/task/delete-task";
@@ -10,10 +10,11 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent, AlertDialogFooter,
+  AlertDialogContent,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from "./ui/alert-dialog";
 
 interface DeleteTaskButtonProps {
@@ -57,9 +58,20 @@ const DeleteTaskButton = ({ task }: DeleteTaskButtonProps) => {
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
-          <AlertDialogAction className="rounded-full" onClick={handleDelete}>
-            Continue
+          <AlertDialogCancel className="rounded-full" disabled={isPending}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className="rounded-full"
+            onClick={handleDelete}
+            disabled={isPending}
+            aria-busy={isPending}
+          >
+            {isPending ? (
+              <LoaderCircle size={14} className="animate-spin" />
+            ) : (
+              "Continue"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

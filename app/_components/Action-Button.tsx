@@ -1,10 +1,10 @@
 "use client";
 
-import { Check, Pause, Play } from "lucide-react";
+import { Check, LoaderCircle, Pause, Play } from "lucide-react";
 import { TaskStatus } from "../generated/prisma/browser";
 import type { TaskTableRow } from "../_data-access/tasks/get-tasks";
 import ControlPlayerButton from "./ui/control-player.button";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { updateTaskStatus } from "../_actions/task/update-task-status";
 import { TaskStatusEnum } from "../_lib/enums/task.enum";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ interface ActionButtonProps {
 }
 const ActionButton = ({ task }: ActionButtonProps) => {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [optimisticState, setOptimisticState] = useState<{
     baseStatus: TaskStatusEnum;
     status: TaskStatusEnum;
@@ -23,7 +24,9 @@ const ActionButton = ({ task }: ActionButtonProps) => {
       ? optimisticState.status
       : task.status;
 
-  const handleTaskProgress = async () => {
+  const handleTaskProgress = () => {
+    if (isPending) return;
+
     const previousStatus = status;
     const optimisticStatus =
       status === TaskStatusEnum.RUNNING
@@ -32,25 +35,46 @@ const ActionButton = ({ task }: ActionButtonProps) => {
           ? TaskStatusEnum.PAUSED
           : TaskStatusEnum.RUNNING;
 
-    setOptimisticState({ baseStatus: task.status as TaskStatusEnum, status: optimisticStatus });
+    setOptimisticState({
+      baseStatus: task.status as TaskStatusEnum,
+      status: optimisticStatus,
+    });
 
-    try {
-      const updatedTask = await updateTaskStatus({
-        id: task.id,
-        user_id: task.user_id,
-      });
-      setOptimisticState({
-        baseStatus: task.status as TaskStatusEnum,
-        status: updatedTask.status as TaskStatusEnum,
-      });
-      router.refresh();
-    } catch {
-      setOptimisticState({
-        baseStatus: task.status as TaskStatusEnum,
-        status: previousStatus as TaskStatusEnum,
-      });
-    }
+    startTransition(async () => {
+      try {
+        const updatedTask = await updateTaskStatus({
+          id: task.id,
+          user_id: task.user_id,
+        });
+        setOptimisticState({
+          baseStatus: task.status as TaskStatusEnum,
+          status: updatedTask.status as TaskStatusEnum,
+        });
+        router.refresh();
+      } catch {
+        setOptimisticState({
+          baseStatus: task.status as TaskStatusEnum,
+          status: previousStatus as TaskStatusEnum,
+        });
+      }
+    });
   };
+
+  const controlProps = {
+    onClick: handleTaskProgress,
+    disabled: isPending,
+    "aria-busy": isPending,
+  };
+
+  if (isPending) {
+    return (
+      <ControlPlayerButton
+        {...controlProps}
+        icon={LoaderCircle}
+        iconProps={{ size: 16, className: "animate-spin" }}
+      />
+    );
+  }
 
   switch (status) {
     case TaskStatus.PENDING:
@@ -59,7 +83,7 @@ const ActionButton = ({ task }: ActionButtonProps) => {
         <ControlPlayerButton
           icon={Play}
           iconProps={{ size: 16, fill: "currentColor" }}
-          onClick={handleTaskProgress}
+          {...controlProps}
         />
       );
     case TaskStatus.DONE:
@@ -67,7 +91,7 @@ const ActionButton = ({ task }: ActionButtonProps) => {
         <ControlPlayerButton
           icon={Check}
           iconProps={{ size: 16, strokeWidth: 3 }}
-          onClick={handleTaskProgress}
+          {...controlProps}
         />
       );
     case TaskStatus.RUNNING:
@@ -76,7 +100,7 @@ const ActionButton = ({ task }: ActionButtonProps) => {
           icon={Pause}
           className="bg-accent-700"
           iconProps={{ size: 16, className: "text-accent-300 fill-accent-300" }}
-          onClick={handleTaskProgress}
+          {...controlProps}
         />
       );
     default:
@@ -84,7 +108,7 @@ const ActionButton = ({ task }: ActionButtonProps) => {
         <ControlPlayerButton
           icon={Play}
           iconProps={{ size: 16, fill: "currentColor" }}
-          onClick={handleTaskProgress}
+          {...controlProps}
         />
       );
   }

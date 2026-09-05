@@ -1,4 +1,6 @@
-import { ButtonHTMLAttributes, ComponentType } from "react";
+import { ButtonHTMLAttributes, ComponentType, useTransition } from "react";
+import { LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Task } from "../generated/prisma/client";
 import { Button } from "./ui/button";
 import { updateTaskStatusToDoneOrUndone } from "../_actions/task/task-to-done";
@@ -9,7 +11,7 @@ interface IconProps {
   strokeWidth?: string | number;
   className?: string;
   fill?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface DoneTaskButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -26,16 +28,24 @@ const DoneUndoneTaskButton = ({
   iconProps = {},
   ...rest
 }: DoneTaskButtonProps) => {
-  const handleDoneTaskClick = async () => {
-    try {
-      await updateTaskStatusToDoneOrUndone({
-        id: task.id,
-        user_id: task.user_id,
-        status,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleDoneTaskClick = () => {
+    if (isPending) return;
+
+    startTransition(async () => {
+      try {
+        await updateTaskStatusToDoneOrUndone({
+          id: task.id,
+          user_id: task.user_id,
+          status,
+        });
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+      }
+    });
   };
 
   return (
@@ -45,9 +55,15 @@ const DoneUndoneTaskButton = ({
       className="cursor-pointer"
       size="sm"
       onClick={handleDoneTaskClick}
+      disabled={isPending}
+      aria-busy={isPending}
       {...rest}
     >
-      {IconComponent && <IconComponent size={14} {...iconProps} />}
+      {isPending ? (
+        <LoaderCircle size={14} className="animate-spin" />
+      ) : (
+        IconComponent && <IconComponent size={14} {...iconProps} />
+      )}
     </Button>
   );
 };
