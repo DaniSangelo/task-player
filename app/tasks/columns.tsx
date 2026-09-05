@@ -11,6 +11,7 @@ import {
 import type { TaskTableRow } from "@/app/_data-access/tasks/get-tasks";
 import { Clock, SquareCheck, Square } from "lucide-react";
 import { Button } from "@base-ui/react";
+import TaskTime from "../_components/Task-Time";
 
 const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
 
@@ -80,7 +81,7 @@ export const columns = columnHelper.columns([
             className={`${TaskStatusEnum.DONE !== row.original.status ? "text-accent-950/50" : ""}`}
           />
           <span className="font-bold">
-            {row.original.time_spent || "00:00:00"}
+            <TaskTime task={row.original} />
           </span>
         </div>
       );

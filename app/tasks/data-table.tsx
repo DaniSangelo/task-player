@@ -22,6 +22,7 @@ import {
 import { TaskDescriptionEnum, TaskStatusEnum } from "../_lib/enums/task.enum";
 import ActionButton from "../_components/Action-Button";
 import type { ComponentProps } from "react";
+import TaskTime from "../_components/Task-Time";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[];
@@ -37,6 +38,7 @@ export function DataTable<TData extends RowData>({
     features,
     columns,
     data,
+    getRowId: (row) => (row as TData & { id: string }).id,
     initialState: {
       pagination: {
         pageSize: 15,
@@ -137,7 +139,13 @@ export function DataTable<TData extends RowData>({
                 </CardAction>
               </CardHeader>
               <CardContent>
-                <p>{row.getValue("time_spent")}</p>
+                <p>
+                  <TaskTime
+                    task={
+                      row.original as ComponentProps<typeof TaskTime>["task"]
+                    }
+                  />
+                </p>
               </CardContent>
               <CardFooter>
                 <p
