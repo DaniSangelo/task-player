@@ -8,12 +8,34 @@ import { columns } from "./columns";
 import AddTaskButton from "../_components/add-task.button";
 import { DatePickerInput } from "../_components/ui/date-picker";
 
-export default async function Task() {
+const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+function getSelectedDay(value: string | string[] | undefined) {
+  if (typeof value !== "string" || !datePattern.test(value)) {
+    return new Date();
+  }
+
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) || formatDay(date) !== value
+    ? new Date()
+    : date;
+}
+
+function formatDay(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export default async function Task({ searchParams }: PageProps<"/tasks">) {
+  const selectedDay = getSelectedDay((await searchParams).date);
+  const selectedDayParam = formatDay(selectedDay);
   const [tasks, dailyWorkedSeconds] = await Promise.all([
-    getTasks(),
-    getDailyWorkedSeconds(),
+    getTasks(selectedDayParam),
+    getDailyWorkedSeconds(undefined, selectedDay),
   ]);
-  const today = new Intl.DateTimeFormat("pt-BR").format(new Date());
   const hours = Math.floor(dailyWorkedSeconds / 3600)
     .toString()
     .padStart(2, "0");
@@ -42,7 +64,10 @@ export default async function Task() {
                 </p>
               </div>
               <div className="m-2 text-sm">
-                <DatePickerInput />
+                <DatePickerInput
+                  key={selectedDayParam}
+                  selectedDay={selectedDayParam}
+                />
               </div>
             </div>
             <DataTable columns={columns} data={tasks} />

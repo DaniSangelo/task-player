@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { CalendarIcon } from "lucide-react";
-import { Field, FieldLabel } from "./field";
+import { useRouter } from "next/navigation";
+import { Field } from "./field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -31,11 +32,42 @@ function isValidDate(date: Date | undefined) {
   return !isNaN(date.getTime());
 }
 
-export function DatePickerInput() {
+function formatSearchDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+type DatePickerInputProps = {
+  selectedDay: string;
+};
+
+export function DatePickerInput({ selectedDay }: DatePickerInputProps) {
+  const router = useRouter();
   const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const selectedDate = React.useMemo(
+    () => new Date(`${selectedDay}T00:00:00`),
+    [selectedDay],
+  );
+  const [date, setDate] = React.useState<Date | undefined>(selectedDate);
   const [month, setMonth] = React.useState<Date | undefined>(date);
   const [value, setValue] = React.useState(formatDate(date));
+
+  const selectDate = (nextDate: Date) => {
+    setDate(nextDate);
+    setMonth(nextDate);
+    setValue(formatDate(nextDate));
+    router.replace(`/tasks?date=${formatSearchDate(nextDate)}`);
+  };
+
+  const selectTypedDate = () => {
+    const typedDate = new Date(value);
+    if (isValidDate(typedDate)) {
+      selectDate(typedDate);
+    }
+  };
 
   return (
     <Field className="mx-auto w-48">
@@ -43,18 +75,16 @@ export function DatePickerInput() {
         <InputGroupInput
           id="date-required"
           value={value}
-          onChange={(e) => {
-            const date = new Date(e.target.value);
-            setValue(e.target.value);
-            if (isValidDate(date)) {
-              setDate(date);
-              setMonth(date);
-            }
-          }}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={selectTypedDate}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
               e.preventDefault();
               setOpen(true);
+            }
+            if (e.key === "Enter") {
+              e.preventDefault();
+              selectTypedDate();
             }
           }}
         />
@@ -86,8 +116,11 @@ export function DatePickerInput() {
                 month={month}
                 onMonthChange={setMonth}
                 onSelect={(date) => {
-                  setDate(date);
-                  setValue(formatDate(date));
+                  if (!date) {
+                    return;
+                  }
+
+                  selectDate(date);
                   setOpen(false);
                 }}
               />

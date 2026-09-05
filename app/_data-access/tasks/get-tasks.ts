@@ -6,27 +6,42 @@ export type TaskTableRow = Omit<Task, "time_spent"> & {
   time_spent: number;
 };
 
-export const getTasks = async (): Promise<TaskTableRow[]> => {
+export const getTasks = async (day: string): Promise<TaskTableRow[]> => {
   return await db.$queryRaw<TaskTableRow[]>`
     SELECT
-      id,
-      title,
-      description,
-      EXTRACT(EPOCH FROM time_spent)::double precision AS time_spent,
-      started_at,
-      finished_at,
-      created_at,
-      updated_at,
-      user_id,
-      status
-    FROM
-      tasks
+      task.id,
+      task.title,
+      task.description,
+      COALESCE((
+        SELECT SUM(EXTRACT(EPOCH FROM (
+          LEAST(history.finished_at, ${day}::date + INTERVAL '1 day')
+          - GREATEST(history.started_at, ${day}::date)
+        )))
+        FROM task_progress_history AS history
+        WHERE history.task_id = task.id
+          AND history.started_at < ${day}::date + INTERVAL '1 day'
+          AND history.finished_at > ${day}::date
+      ), 0)::double precision AS time_spent,
+      task.started_at,
+      task.finished_at,
+      task.created_at,
+      task.updated_at,
+      task.user_id,
+      task.status
+    FROM tasks AS task
+    WHERE EXISTS (
+      SELECT 1
+      FROM task_progress_history AS history
+      WHERE history.task_id = task.id
+        AND history.started_at < ${day}::date + INTERVAL '1 day'
+        AND history.finished_at > ${day}::date
+    )
     ORDER BY
       CASE WHEN status = 'DONE' THEN 99
         WHEN status = 'RUNNING' THEN 0
         ELSE 1
         END,
-      updated_at DESC`
+      updated_at DESC`;
 }
 
 /**
