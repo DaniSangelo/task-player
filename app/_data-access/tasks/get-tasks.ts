@@ -82,3 +82,55 @@ export const getDailyWorkedSeconds = async (
 
   return result[0]?.total_seconds ?? 0;
 };
+
+export type MonthlyWorkedHours = {
+  month: string;
+  total_hours: number;
+};
+
+export const getMonthlyWorkedHours = async (
+  startMonth: number,
+  startYear: number,
+  endMonth: number,
+  endYear: number,
+  userId = "591f1101-7fc0-42d6-babf-5dfc2fc4a605",
+): Promise<MonthlyWorkedHours[]> => {
+  return await db.$queryRaw<MonthlyWorkedHours[]>`
+    WITH months AS (
+      SELECT generate_series(
+        make_date(${startYear}, ${startMonth}, 1),
+        make_date(${endYear}, ${endMonth}, 1),
+        INTERVAL '1 month'
+      ) AS month_start
+    ), progress_history AS (
+      SELECT history.started_at, history.finished_at
+      FROM task_progress_history AS history
+      INNER JOIN tasks AS task ON task.id = history.task_id
+      WHERE task.user_id = ${userId}::uuid
+
+      UNION ALL
+
+      SELECT task.started_at, CURRENT_TIMESTAMP
+      FROM tasks AS task
+      WHERE task.user_id = ${userId}::uuid
+        AND task.status = 'RUNNING'
+        AND task.started_at IS NOT NULL
+    ) 
+    SELECT
+      to_char(months.month_start, 'YYYY-MM') AS month,
+      COALESCE(
+        SUM(EXTRACT(EPOCH FROM (
+          LEAST(history.finished_at, months.month_start + INTERVAL '1 month')
+          - GREATEST(history.started_at, months.month_start)
+        ))) / 3600,
+        0
+      )::double precision AS total_hours
+    FROM months
+    LEFT JOIN progress_history AS history
+      ON history.started_at < months.month_start + INTERVAL '1 month'
+      AND history.finished_at > months.month_start
+    GROUP BY months.month_start
+    HAVING COUNT(history.started_at) > 0
+    ORDER BY months.month_start
+  `;
+};
