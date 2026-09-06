@@ -186,7 +186,7 @@ export function DataTable<TData extends RowData>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeft strokeWidth={3} />
+            <ChevronLeft strokeWidth={3} size={14} />
           </Button>
           <Button
             variant="outline"
@@ -195,7 +195,7 @@ export function DataTable<TData extends RowData>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight strokeWidth={3} />
+            <ChevronRight strokeWidth={3} size={14}/>
           </Button>
         </div>
       ) : (
