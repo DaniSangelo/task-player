@@ -3,21 +3,14 @@
 import { useEffect, useState } from "react";
 import type { TaskTableRow } from "../_data-access/tasks/get-tasks";
 import { TaskStatusEnum } from "../_lib/enums/task.enum";
+import { formatSecondsToTime } from "../_lib/shared/helper";
 
 interface TaskTimeProps {
   task: TaskTableRow;
 }
 
 const formatTime = (totalSeconds: number) => {
-  const hours = Math.floor(totalSeconds / 3600)
-    .toString()
-    .padStart(2, "0");
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = Math.floor(totalSeconds % 60)
-    .toString()
-    .padStart(2, "0");
+  const {hours, minutes, seconds } = formatSecondsToTime(totalSeconds);
 
   return `${hours}:${minutes}:${seconds}`;
 };

@@ -7,6 +7,7 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import AddTaskButton from "../_components/add-task.button";
 import { DatePickerInput } from "../_components/ui/date-picker";
+import { formatSecondsToTime } from "../_lib/shared/helper";
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -36,15 +37,7 @@ export default async function Task({ searchParams }: PageProps<"/tasks">) {
     getTasks(selectedDayParam),
     getDailyWorkedSeconds(undefined, selectedDay),
   ]);
-  const hours = Math.floor(dailyWorkedSeconds / 3600)
-    .toString()
-    .padStart(2, "0");
-  const minutes = Math.floor((dailyWorkedSeconds % 3600) / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = Math.floor(dailyWorkedSeconds % 60)
-    .toString()
-    .padStart(2, "0");
+  const {hours, minutes, seconds } = formatSecondsToTime(dailyWorkedSeconds);
   return (
     <div className="flex flex-1 flex-col items-center justify-center bg-white">
       <main className="flex w-full min-w-0 max-w-7xl flex-1 flex-col items-center justify-between space-y-10 px-4 py-10 sm:items-star sm:px-16 sm:py-16">
