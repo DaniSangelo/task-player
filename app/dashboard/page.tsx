@@ -1,4 +1,5 @@
 import TotalHoursMonthChart from "../_components/total-hours-month.chart";
+import { DatePickerWithRange } from "../_components/ui/range-date-picker";
 import {
   getMonthlyWorkedHours,
   MonthlyWorkedHours,
@@ -26,7 +27,16 @@ const DashboardPage = async () => {
       total_in_time: `${hours}:${minutes}`,
     };
   });
-  return <TotalHoursMonthChart chartData={transformed} />;
+  return (
+    <div className="p-3 flex flex-col space-y-3 border w-full">
+      <div className="md:mr-auto p-2">
+        <DatePickerWithRange />
+      </div>
+      <div className="relative">
+        <TotalHoursMonthChart chartData={transformed} />
+      </div>
+    </div>
+  );
 };
 
 export default DashboardPage;
