@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, TimerResetIcon, UserRound } from "lucide-react";
+import { LogOut, Menu, TimerResetIcon, UserRound } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -119,16 +119,16 @@ const Header = () => {
                   Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
-                  Billing
+                  Dashboard
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
-                  Team
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
-                  Subscription
+                  <div className="flex gap-2 items-center">
+                    Logout
+                    <LogOut />
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
