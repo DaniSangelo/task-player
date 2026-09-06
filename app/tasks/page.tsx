@@ -30,60 +30,56 @@ function formatDay(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export default async function Task({ searchParams }: PageProps<"/tasks">) {
+export default async function TaskPage({ searchParams }: PageProps<"/tasks">) {
   const selectedDay = getSelectedDay((await searchParams).date);
   const selectedDayParam = formatDay(selectedDay);
   const [tasks, dailyWorkedSeconds] = await Promise.all([
     getTasks(selectedDayParam),
     getDailyWorkedSeconds(undefined, selectedDay),
   ]);
-  const {hours, minutes, seconds } = formatSecondsToTime(dailyWorkedSeconds);
+  const { hours, minutes, seconds } = formatSecondsToTime(dailyWorkedSeconds);
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-white">
-      <main className="flex w-full min-w-0 max-w-7xl flex-1 flex-col items-center justify-between space-y-10 px-4 py-10 sm:items-star sm:px-16 sm:py-16">
-        <div className="flex w-full min-w-0 flex-col space-y-5">
-          <div className="w-full md:ml-auto md:w-auto">
-            <div className="md:flex gap-5 items-center">
-              <AddTaskButton />
-            </div>
-          </div>
-          <div className="w-full min-w-0 overflow-hidden rounded-md border border-accent-100/50">
-            <div className="mb-10 flex flex-col gap-3 border-b border-accent-100/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:py-0">
-              <div className="flex items-center gap-2 sm:py-5">
-                <Circle size={10} className="fill-accent-500 text-accent-500" />
-                <p className="whitespace-nowrap text-sm">Today&#39;s tasks</p>
-                <p className="text-[10px] text-secondary-500 bg-accent-50 rounded-full py-1 px-2">
-                  {tasks.length}
-                </p>
-              </div>
-              <div className="self-center text-sm sm:m-2">
-                <DatePickerInput
-                  key={selectedDayParam}
-                  selectedDay={selectedDayParam}
-                />
-              </div>
-            </div>
-            <DataTable columns={columns} data={tasks} />
-          </div>
-          <footer className="flex w-full px-2 py-8">
-            {tasks.length ? (
-              <div className="flex flex-col md:items-start md:ml-auto w-full md:w-fit items-center">
-                <p className="tracking-widest font-heading uppercase text-xs font-semibold text-accent-950/50">
-                  Total time worked
-                </p>
-                <div className="flex gap-2 items-baseline">
-                  <p className="text-4xl font-bold text-accent-950">
-                    {hours}:{minutes}:{seconds}
-                  </p>
-                  <p className="text-sm opacity-50">hours</p>
-                </div>
-              </div>
-            ) : (
-              <></>
-            )}
-          </footer>
+    <div className="flex w-full min-w-0 flex-col space-y-5">
+      <div className="w-full md:ml-auto md:w-auto">
+        <div className="md:flex gap-5 items-center">
+          <AddTaskButton />
         </div>
-      </main>
+      </div>
+      <div className="w-full min-w-0 overflow-hidden rounded-md border border-accent-100/50">
+        <div className="mb-10 flex flex-col gap-3 border-b border-accent-100/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:py-0">
+          <div className="flex items-center gap-2 sm:py-5">
+            <Circle size={10} className="fill-accent-500 text-accent-500" />
+            <p className="whitespace-nowrap text-sm">Today&#39;s tasks</p>
+            <p className="text-[10px] text-secondary-500 bg-accent-50 rounded-full py-1 px-2">
+              {tasks.length}
+            </p>
+          </div>
+          <div className="self-center text-sm sm:m-2">
+            <DatePickerInput
+              key={selectedDayParam}
+              selectedDay={selectedDayParam}
+            />
+          </div>
+        </div>
+        <DataTable columns={columns} data={tasks} />
+      </div>
+      <footer className="flex w-full px-2 py-8">
+        {tasks.length ? (
+          <div className="flex flex-col md:items-start md:ml-auto w-full md:w-fit items-center">
+            <p className="tracking-widest font-heading uppercase text-xs font-semibold text-accent-950/50">
+              Total time worked
+            </p>
+            <div className="flex gap-2 items-baseline">
+              <p className="text-4xl font-bold text-accent-950">
+                {hours}:{minutes}:{seconds}
+              </p>
+              <p className="text-sm opacity-50">hours</p>
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
+      </footer>
     </div>
   );
 }

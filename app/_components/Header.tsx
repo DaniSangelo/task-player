@@ -62,6 +62,12 @@ const Header = () => {
                 className={`rounded-lg ${navigationMenuTriggerStyle()} ${path === "/tasks" ? "relative font-semibold border-b-2 border-accent-700 text-primary-700" : ""}`}
               />
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                render={<Link href="/dashboard">Dashboard</Link>}
+                className={`rounded-lg ${navigationMenuTriggerStyle()} ${path === "/dashboard" ? "relative font-semibold border-b-2 border-accent-700 text-primary-700" : ""}`}
+              />
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
         <div className="md:hidden flex ml-auto">
@@ -92,6 +98,13 @@ const Header = () => {
                 >
                   Tasks
                 </Link>
+                <Link
+                  href="/dashboard"
+                  className="hover:bg-secondary hover:text-primary-700 p-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
@@ -118,20 +131,21 @@ const Header = () => {
             <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
-                  Dashboard
+                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700 w-full">
+                  <Link
+                    href="/profile"
+                    // className="hover:bg-secondary hover:text-primary-700 p-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Profile
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
-                  <div className="flex gap-2 items-center">
-                    Logout
-                    <LogOut />
-                  </div>
+                  Log out
+                  <LogOut />
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
