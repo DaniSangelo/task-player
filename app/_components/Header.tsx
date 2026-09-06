@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu";
-import { Avatar } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -107,7 +107,10 @@ const Header = () => {
                     className="flex justify-center items-center border-accent-900"
                     size="lg"
                   >
-                    <UserRound size={24} className="text-accent-600" />
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>
+                      <UserRound size={24} className="text-accent-600" />
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               }
