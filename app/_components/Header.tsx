@@ -32,7 +32,7 @@ import { usePathname } from "next/navigation";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const path = usePathname()
+  const path = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-white px-6 py-4 shadow-sm border-b border-secondary-50">
@@ -51,14 +51,16 @@ const Header = () => {
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuLink className={`${navigationMenuTriggerStyle()} ${path === '/' ? 'relative font-semibold border-b-2 border-accent-700 text-primary-700' : ''}`}>
-                <Link href="/">Home</Link>
-              </NavigationMenuLink>
+              <NavigationMenuLink
+                render={<Link href="/">Home</Link>}
+                className={`rounded-lg ${navigationMenuTriggerStyle()} ${path === "/" ? "relative font-semibold border-b-2 border-accent-700 text-primary-700" : ""}`}
+              />
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink className={`${navigationMenuTriggerStyle()} ${path === '/tasks' ? 'relative font-semibold border-b-2 border-accent-700 text-primary-700' : ''}`}>
-                <Link href="/tasks">Tasks</Link>
-              </NavigationMenuLink>
+              <NavigationMenuLink
+                render={<Link href="/tasks">Tasks</Link>}
+                className={`rounded-lg ${navigationMenuTriggerStyle()} ${path === "/tasks" ? "relative font-semibold border-b-2 border-accent-700 text-primary-700" : ""}`}
+              />
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
@@ -100,24 +102,34 @@ const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
-                <Avatar
-                  className="flex justify-center items-center border-accent-900"
-                  size="default"
-                >
-                  <UserRound className="text-accent-600" />
-                </Avatar>
+                <Button variant="none" size="sm">
+                  <Avatar
+                    className="flex justify-center items-center border-accent-900"
+                    size="lg"
+                  >
+                    <UserRound size={24} className="text-accent-600" />
+                  </Avatar>
+                </Button>
               }
             />
             <DropdownMenuContent>
               <DropdownMenuGroup>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">Profile</DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">Billing</DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
+                  Billing
+                </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">Team</DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">Subscription</DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
+                  Team
+                </DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
+                  Subscription
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

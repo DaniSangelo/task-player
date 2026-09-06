@@ -97,10 +97,10 @@ export function DatePickerInput({ selectedDay }: DatePickerInputProps) {
                   variant="ghost"
                   size="icon-xs"
                   aria-label="Select date"
-                  className="rounded-full p-2"
+                  className="rounded-full p-7"
                 >
-                  <CalendarIcon className="text-accent-400" />
-                  <span className="sr-only">Select date</span>
+                  <CalendarIcon className="text-accent-400" size={16}/>
+                  {/* <span className="sr-only">Select date</span> */}
                 </InputGroupButton>
               }
             />

@@ -49,7 +49,7 @@ const AddTaskButton = () => {
       <DialogTrigger
         render={
           <Button className="w-full rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center md:w-auto">
-            <PlusIcon className="text-white" />
+            <PlusIcon className="text-white" size={14}/>
             Add task
           </Button>
         }
