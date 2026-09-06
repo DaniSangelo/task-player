@@ -221,6 +221,7 @@ function CalendarDayButton({
           flex-col
           gap-1
           border-0
+          hover:rounded-full
           leading-none
           font-normal
           group-data-[focused=true]/day:relative
