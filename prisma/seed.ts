@@ -58,31 +58,22 @@ const taskTitles = [
 ];
 
 const statuses = [
-  TaskStatus.RUNNING,
-  TaskStatus.PAUSED,
   TaskStatus.DONE,
-  TaskStatus.PENDING,
   TaskStatus.PAUSED,
-  TaskStatus.DONE,
   TaskStatus.PENDING,
   TaskStatus.DONE,
+  TaskStatus.PAUSED,
+  TaskStatus.PENDING,
 ];
 
-const daysAgo = (reference: Date, days: number) => {
-  const date = new Date(reference);
-  date.setDate(date.getDate() - days);
-  return date;
-};
-
-const atTime = (
-  reference: Date,
-  daysAgoValue: number,
+const atMonthTime = (
+  year: number,
+  month: number,
+  day: number,
   hour: number,
   minute: number,
 ) => {
-  const date = daysAgo(reference, daysAgoValue);
-  date.setHours(hour, minute, 0, 0);
-  return date;
+  return new Date(year, month, day, hour, minute, 0, 0);
 };
 
 async function main() {
@@ -96,33 +87,37 @@ async function main() {
   }
 
   const now = new Date();
-  const startOfToday = new Date(now);
-  startOfToday.setHours(0, 0, 0, 0);
+  const seedYear = now.getFullYear();
 
   const tasks = taskTitles.map((title, index) => {
     const number = index + 1;
     const status =
       number === 1 ? TaskStatus.RUNNING : statuses[index % statuses.length];
-    const createdAt = atTime(
-      now,
-      number % 20,
+    const month = Math.floor(index / 3);
+    const createdAt = atMonthTime(
+      seedYear,
+      month,
+      3 + (number % 20),
       (number * 2) % 24,
       (number * 7) % 60,
     );
+    const updatedAt = new Date(createdAt.getTime() + 2 * 60 * 60 * 1000);
 
     return {
       id: taskId(number),
       title,
       description: `Descrição de teste para a tarefa ${number}, usada nos cenários da aplicação.`,
       status,
-      created_at: createdAt,
-      updated_at: now,
+      created_at: number === 1 ? now : createdAt,
+      updated_at: number === 1 ? now : updatedAt,
       started_at:
         status === TaskStatus.RUNNING
           ? new Date(now.getTime() - 45 * 60 * 1000)
           : null,
       finished_at:
-        status === TaskStatus.DONE ? atTime(now, number % 6, 17, 30) : null,
+        status === TaskStatus.DONE
+          ? atMonthTime(seedYear, month, 18 + (number % 7), 17, 30)
+          : null,
       user_id: userId,
     };
   });
@@ -143,48 +138,42 @@ async function main() {
     });
   }
 
-  const progressHistory = [
-    {
-      id: historyId(1),
-      task_id: taskId(1),
-      time_spent_seconds: 3600,
-      started_at: atTime(now, 1, 14, 0),
-      finished_at: atTime(now, 1, 15, 0),
-    },
-    {
-      id: historyId(2),
-      task_id: taskId(2),
-      time_spent_seconds: 7200,
-      started_at: atTime(now, 0, 8, 0),
-      finished_at: atTime(now, 0, 10, 0),
-    },
-    {
-      id: historyId(3),
-      task_id: taskId(3),
-      time_spent_seconds: 2700,
-      started_at: atTime(now, 0, 10, 30),
-      finished_at: atTime(now, 0, 11, 15),
-    },
-    {
-      id: historyId(4),
-      task_id: taskId(4),
-      time_spent_seconds: 5400,
-      started_at: new Date(startOfToday.getTime() - 30 * 60 * 1000),
-      finished_at: new Date(startOfToday.getTime() + 60 * 60 * 1000),
-    },
-    ...Array.from({ length: 12 }, (_, index) => {
-      const startedAt = atTime(now, (index % 7) + 1, 9 + (index % 4), 15);
-      const durationSeconds = (index + 1) * 900;
+  // Pending tasks intentionally have no progress records.
+  const progressHistory = tasks
+    .filter(
+      (task) =>
+        task.status !== TaskStatus.PENDING && task.status !== TaskStatus.RUNNING,
+    )
+    .flatMap((task, index) => {
+      const taskNumber = index + 1;
+      const taskMonth = task.created_at!.getMonth();
 
-      return {
-        id: historyId(index + 5),
-        task_id: taskId(index + 5),
-        time_spent_seconds: durationSeconds,
-        started_at: startedAt,
-        finished_at: new Date(startedAt.getTime() + durationSeconds * 1000),
-      };
-    }),
-  ];
+      return [
+        0,
+        1,
+      ].map((session) => {
+        const startedAt = atMonthTime(
+          seedYear,
+          taskMonth,
+          8 + session * 8 + (taskNumber % 5),
+          9 + ((taskNumber + session) % 6),
+          session === 0 ? 15 : 30,
+        );
+        const durationSeconds = (taskNumber + session + 2) * 900;
+
+        return {
+          id: historyId(taskNumber * 10 + session + 1),
+          task_id: task.id,
+          time_spent_seconds: durationSeconds,
+          started_at: startedAt,
+          finished_at: new Date(startedAt.getTime() + durationSeconds * 1000),
+        };
+      });
+    });
+
+  await prisma.taskProgressHistory.deleteMany({
+    where: { task_id: { in: tasks.map((task) => task.id) } },
+  });
 
   await prisma.taskProgressHistory.createMany({
     data: progressHistory.map((progress) => ({
@@ -192,21 +181,20 @@ async function main() {
       created_at: progress.finished_at,
       updated_at: progress.finished_at,
     })),
-    skipDuplicates: true,
   });
 
-  for (const progress of progressHistory) {
+  for (const task of tasks) {
     await prisma.$executeRaw`
       UPDATE tasks
       SET time_spent = COALESCE(
         (
           SELECT SUM(history.time_spent_seconds) * INTERVAL '1 second'
           FROM task_progress_history AS history
-          WHERE history.task_id = ${progress.task_id}::uuid
+          WHERE history.task_id = ${task.id}::uuid
         ),
         INTERVAL '0 seconds'
       )
-      WHERE id = ${progress.task_id}::uuid
+      WHERE id = ${task.id}::uuid
         AND user_id = ${userId}::uuid
     `;
   }
