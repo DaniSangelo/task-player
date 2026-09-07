@@ -6,9 +6,14 @@ import {
   RowData,
   useTable,
 } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableRow } from "../_components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "../../_components/ui/table";
 import { features, type DataTableFeatures } from "./data-table-features";
-import { Button } from "../_components/ui/button";
+import { Button } from "../../_components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Card,
@@ -18,12 +23,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../_components/ui/card";
-import { TaskDescriptionEnum, TaskStatusEnum } from "../_lib/enums/task.enum";
-import ActionButton from "../_components/Action-Button";
+} from "../../_components/ui/card";
+import {
+  TaskDescriptionEnum,
+  TaskStatusEnum,
+} from "../../_lib/enums/task.enum";
+import ActionButton from "../../_components/Action-Button";
 import type { ComponentProps } from "react";
-import TaskTime from "../_components/Task-Time";
-import { Badge } from "../_components/ui/badge";
+import TaskTime from "../../_components/Task-Time";
+import { Badge } from "../../_components/ui/badge";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[];
@@ -195,7 +203,7 @@ export function DataTable<TData extends RowData>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight strokeWidth={3} size={14}/>
+            <ChevronRight strokeWidth={3} size={14} />
           </Button>
         </div>
       ) : (

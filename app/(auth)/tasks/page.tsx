@@ -2,12 +2,12 @@ import { Circle } from "lucide-react";
 import {
   getDailyWorkedSeconds,
   getTasks,
-} from "../_data-access/tasks/get-tasks";
+} from "../../_data-access/tasks/get-tasks";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import AddTaskButton from "../_components/add-task.button";
-import { DatePickerInput } from "../_components/ui/date-picker";
-import { formatSecondsToTime } from "../_lib/shared/helper";
+import AddTaskButton from "../../_components/add-task.button";
+import { DatePickerInput } from "../../_components/ui/date-picker";
+import { formatSecondsToTime } from "../../_lib/shared/helper";
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -42,7 +42,7 @@ export default async function TaskPage({ searchParams }: PageProps<"/tasks">) {
     <div className="flex w-full min-w-0 flex-col space-y-5">
       <div className="w-full md:ml-auto md:w-auto">
         <div className="md:flex gap-5 items-center">
-          <AddTaskButton selectedDay={selectedDayParam}/>
+          <AddTaskButton selectedDay={selectedDayParam} />
         </div>
       </div>
       <div className="w-full min-w-0 overflow-hidden rounded-md border border-accent-100/50">

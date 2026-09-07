@@ -1,11 +1,11 @@
-import TotalHoursMonthChart from "../_components/total-hours-month.chart";
-import { DatePickerWithRange } from "../_components/ui/range-date-picker";
+import TotalHoursMonthChart from "../../_components/total-hours-month.chart";
+import { DatePickerWithRange } from "../../_components/ui/range-date-picker";
 import {
   getMonthlyWorkedHours,
   MonthlyWorkedHours,
-} from "../_data-access/tasks/get-tasks";
-import { getDashboardDateRange } from "../_lib/dashboard-date-range";
-import { formatSecondsToTime } from "../_lib/shared/helper";
+} from "../../_data-access/tasks/get-tasks";
+import { getDashboardDateRange } from "../../_lib/dashboard-date-range";
+import { formatSecondsToTime } from "../../_lib/shared/helper";
 
 export interface TransformedMonthlyWorkedHours extends MonthlyWorkedHours {
   year_month: string;
@@ -47,7 +47,7 @@ const DashboardPage = async ({ searchParams }: PageProps<"/dashboard">) => {
         />
       </div>
       <div>
-        <TotalHoursMonthChart chartData={transformed} dateRange={dateRange}/>
+        <TotalHoursMonthChart chartData={transformed} dateRange={dateRange} />
       </div>
     </div>
   );

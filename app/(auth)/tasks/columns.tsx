@@ -3,17 +3,17 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
 import { type DataTableFeatures } from "./data-table-features";
-import ActionButton from "../_components/Action-Button";
+import ActionButton from "../../_components/Action-Button";
 import {
   TaskDescriptionEnum,
   TaskStatusEnum,
 } from "@/app/_lib/enums/task.enum";
 import type { TaskTableRow } from "@/app/_data-access/tasks/get-tasks";
 import { Clock, SquareCheck, Square } from "lucide-react";
-import TaskTime from "../_components/Task-Time";
-import DeleteTaskButton from "../_components/delete-task.button";
-import DoneUndoneTaskButton from "../_components/done-undone-task.button";
-import { Badge } from "../_components/ui/badge";
+import TaskTime from "../../_components/Task-Time";
+import DeleteTaskButton from "../../_components/delete-task.button";
+import DoneUndoneTaskButton from "../../_components/done-undone-task.button";
+import { Badge } from "../../_components/ui/badge";
 
 const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
 
@@ -47,9 +47,9 @@ export const columns = columnHelper.columns([
                   row.original.status === TaskStatusEnum.RUNNING
                     ? "text-accent-300 fill-accent-300 bg-accent-700"
                     : row.original.status === TaskStatusEnum.DONE
-                      ? 'outline-1 outline-accent-400 text-accent-300'
-                      : 'bg-secondary/25 text-accent-700'
-                  }
+                      ? "outline-1 outline-accent-400 text-accent-300"
+                      : "bg-secondary/25 text-accent-700"
+                }
                 `}
               variant="outline"
             >

@@ -26,7 +26,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
 
