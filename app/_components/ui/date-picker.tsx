@@ -41,14 +41,27 @@ function formatSearchDate(date: Date) {
 }
 
 type DatePickerInputProps = {
-  selectedDay: string;
+  id?: string;
+  selectedDay: string | Date;
+  onDateChange?: (date: Date) => void;
+  navigateOnSelect?: boolean;
+  disabled?: boolean;
 };
 
-export function DatePickerInput({ selectedDay }: DatePickerInputProps) {
+export function DatePickerInput({
+  id = "date-required",
+  selectedDay,
+  onDateChange,
+  navigateOnSelect = true,
+  disabled = false,
+}: DatePickerInputProps) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const selectedDate = React.useMemo(
-    () => new Date(`${selectedDay}T00:00:00`),
+    () =>
+      selectedDay instanceof Date
+        ? selectedDay
+        : new Date(`${selectedDay}T00:00:00`),
     [selectedDay],
   );
   const [date, setDate] = React.useState<Date | undefined>(selectedDate);
@@ -59,7 +72,10 @@ export function DatePickerInput({ selectedDay }: DatePickerInputProps) {
     setDate(nextDate);
     setMonth(nextDate);
     setValue(formatDate(nextDate));
-    router.replace(`/tasks?date=${formatSearchDate(nextDate)}`);
+    onDateChange?.(nextDate);
+    if (navigateOnSelect) {
+      router.replace(`/tasks?date=${formatSearchDate(nextDate)}`);
+    }
   };
 
   const selectTypedDate = () => {
@@ -73,8 +89,9 @@ export function DatePickerInput({ selectedDay }: DatePickerInputProps) {
     <Field className="mx-auto w-48">
       <InputGroup>
         <InputGroupInput
-          id="date-required"
+          id={id}
           value={value}
+          disabled={disabled}
           onChange={(e) => setValue(e.target.value)}
           onBlur={selectTypedDate}
           onKeyDown={(e) => {
@@ -97,9 +114,10 @@ export function DatePickerInput({ selectedDay }: DatePickerInputProps) {
                   variant="ghost"
                   size="icon-xs"
                   aria-label="Select date"
+                  disabled={disabled}
                   className="rounded-full p-7"
                 >
-                  <CalendarIcon className="text-accent-400" size={16}/>
+                  <CalendarIcon className="text-accent-400" size={16} />
                   {/* <span className="sr-only">Select date</span> */}
                 </InputGroupButton>
               }

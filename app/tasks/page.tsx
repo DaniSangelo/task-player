@@ -42,7 +42,7 @@ export default async function TaskPage({ searchParams }: PageProps<"/tasks">) {
     <div className="flex w-full min-w-0 flex-col space-y-5">
       <div className="w-full md:ml-auto md:w-auto">
         <div className="md:flex gap-5 items-center">
-          <AddTaskButton />
+          <AddTaskButton selectedDay={selectedDayParam}/>
         </div>
       </div>
       <div className="w-full min-w-0 overflow-hidden rounded-md border border-accent-100/50">

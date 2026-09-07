@@ -19,9 +19,15 @@ import { TaskStatus } from "../generated/prisma/enums";
 import { Controller, useForm } from "react-hook-form";
 import { addTask } from "../_actions/task/add-task";
 import { addTaskSchema, AddTaskSchema } from "../_actions/task/add-task/schema";
+import { DatePickerInput } from "./ui/date-picker";
 
-const AddTaskButton = () => {
+interface AddTaskButtonProps {
+  selectedDay: string | Date;
+}
+
+const AddTaskButton = ({ selectedDay }: AddTaskButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const form = useForm<AddTaskSchema>({
     resolver: zodResolver(addTaskSchema),
     defaultValues: {
@@ -29,6 +35,7 @@ const AddTaskButton = () => {
       description: "",
       status: TaskStatus.PENDING,
       user_id: "",
+      created_at: undefined,
     },
     mode: "onSubmit",
     shouldUnregister: true, //clean all previously filled inputs
@@ -38,7 +45,7 @@ const AddTaskButton = () => {
     try {
       await addTask(data);
     } catch (error) {
-      console.log(`Something went wrong on add a new task: ${error?.message}`)
+      console.log(`Something went wrong on add a new task: ${error?.message}`);
     } finally {
       setIsOpen(false);
     }
@@ -49,7 +56,7 @@ const AddTaskButton = () => {
       <DialogTrigger
         render={
           <Button className="w-full rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center md:w-auto">
-            <PlusIcon className="text-white" size={14}/>
+            <PlusIcon className="text-white" size={14} />
             Add task
           </Button>
         }
@@ -101,6 +108,24 @@ const AddTaskButton = () => {
                 </Field>
               )}
             />
+            <Controller
+              name="created_at"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="form-date">Due date</FieldLabel>
+                  <DatePickerInput
+                    id="form-date"
+                    selectedDay={field.value || selectedDay}
+                    navigateOnSelect={false}
+                    disabled
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
           </FieldGroup>
           <DialogFooter className="mt-6">
             <DialogClose
@@ -111,7 +136,7 @@ const AddTaskButton = () => {
               }
             />
             <Button type="submit" className="rounded-full">
-              Save changes
+              Save
             </Button>
           </DialogFooter>
         </form>
