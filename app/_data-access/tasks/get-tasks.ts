@@ -90,16 +90,15 @@ export type MonthlyWorkedHours = {
 
 export const getMonthlyWorkedHours = async (
   startMonth: number,
-  startYear: number,
   endMonth: number,
-  endYear: number,
+  year: number,
   userId = "591f1101-7fc0-42d6-babf-5dfc2fc4a605",
 ): Promise<MonthlyWorkedHours[]> => {
   return await db.$queryRaw<MonthlyWorkedHours[]>`
     WITH months AS (
       SELECT generate_series(
-        make_date(${startYear}, ${startMonth}, 1),
-        make_date(${endYear}, ${endMonth}, 1),
+        make_date(${year}, ${startMonth}, 1),
+        make_date(${year}, ${endMonth}, 1),
         INTERVAL '1 month'
       ) AS month_start
     ), progress_history AS (
@@ -126,11 +125,10 @@ export const getMonthlyWorkedHours = async (
         0
       )::double precision AS total_hours
     FROM months
-    LEFT JOIN progress_history AS history
+    INNER JOIN progress_history AS history
       ON history.started_at < months.month_start + INTERVAL '1 month'
       AND history.finished_at > months.month_start
     GROUP BY months.month_start
-    HAVING COUNT(history.started_at) > 0
     ORDER BY months.month_start
   `;
 };

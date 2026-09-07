@@ -1,17 +1,11 @@
 "use client";
 
+import { format } from "date-fns";
+import { DateFilterRange } from "../_lib/dashboard-date-range";
 import { TransformedMonthlyWorkedHours } from "../dashboard/page";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import {
-  ChartContainer, type ChartConfig
-} from "./ui/chart";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { ChartContainer, type ChartConfig } from "./ui/chart";
 import {
   Bar,
   BarChart,
@@ -27,20 +21,32 @@ const chartConfig = {
 
 interface TotalHOurMonthChartProps {
   chartData: TransformedMonthlyWorkedHours[];
+  dateRange: DateFilterRange;
 }
 
-const TotalHoursMonthChart = ({ chartData }: TotalHOurMonthChartProps) => {
-  const maxDataValue = Math.max(...chartData.flatMap((d) => [d.total_hours]));
+const TotalHoursMonthChart = ({ chartData, dateRange }: TotalHOurMonthChartProps) => {
+  const maxDataValue = chartData.length
+    ? Math.max(...chartData.map((d) => d.total_hours))
+    : 1;
 
   const yAxisMax = Math.ceil(maxDataValue * 1.25);
+  const initialMonthName = format(dateRange.from, 'MMMM')
+  const endMonthName = format(dateRange.to, 'MMMM')
+  const year = format(dateRange.to, 'yyyy');
 
   return (
-    <Card className="min-h-full w-100 shadow-sm">
+    <Card className="min-h-full w-full shadow-sm ml-3 rounded-lg">
       <CardHeader>
         <CardTitle className="uppercase tracking-wide">
           Total hours per month
         </CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardDescription>
+          {
+            initialMonthName === endMonthName
+              ? `${initialMonthName}/${year}`
+              : `${initialMonthName} - ${endMonthName}/${year}`
+          }
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         <ChartContainer config={chartConfig} className="w-full h-75">

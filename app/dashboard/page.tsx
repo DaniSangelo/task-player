@@ -4,6 +4,7 @@ import {
   getMonthlyWorkedHours,
   MonthlyWorkedHours,
 } from "../_data-access/tasks/get-tasks";
+import { getDashboardDateRange } from "../_lib/dashboard-date-range";
 import { formatSecondsToTime } from "../_lib/shared/helper";
 
 export interface TransformedMonthlyWorkedHours extends MonthlyWorkedHours {
@@ -11,8 +12,17 @@ export interface TransformedMonthlyWorkedHours extends MonthlyWorkedHours {
   total_in_time: string;
 }
 
-const DashboardPage = async () => {
-  const totalHoursPerMonthData = await getMonthlyWorkedHours(7, 2026, 12, 2026);
+const DashboardPage = async ({ searchParams }: PageProps<"/dashboard">) => {
+  const params = await searchParams;
+  const dateRange = getDashboardDateRange(params.from, params.to);
+  const year = dateRange.from.getFullYear();
+  const startMonth = dateRange.from.getMonth() + 1;
+  const endMonth = dateRange.to.getMonth() + 1;
+  const totalHoursPerMonthData = await getMonthlyWorkedHours(
+    startMonth,
+    endMonth,
+    year,
+  );
   const transformed = totalHoursPerMonthData.map((m) => {
     const { hours, minutes } = formatSecondsToTime(m.total_hours * 3600);
     const month = m.month.substring(5, 7);
@@ -27,13 +37,17 @@ const DashboardPage = async () => {
       total_in_time: `${hours}:${minutes}`,
     };
   });
+
   return (
-    <div className="p-3 flex flex-col space-y-3 border w-full">
+    <div className="p-3 flex flex-col space-y-3 w-full">
       <div className="md:mr-auto p-2">
-        <DatePickerWithRange />
+        <DatePickerWithRange
+          key={`${dateRange.from.toISOString()}-${dateRange.to.toISOString()}`}
+          initialRange={dateRange}
+        />
       </div>
-      <div className="relative">
-        <TotalHoursMonthChart chartData={transformed} />
+      <div>
+        <TotalHoursMonthChart chartData={transformed} dateRange={dateRange}/>
       </div>
     </div>
   );
