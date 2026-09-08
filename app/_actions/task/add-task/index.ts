@@ -14,9 +14,9 @@ export const addTask = async (data: AddTaskSchema) => {
   }
 
   const task = addTaskSchema.parse(data);
-
+  const {created_at, ...restOfData} = task;
   await db.task.create({
-    data: { ...task, user_id: userId }
+    data: { ...restOfData, user_id: userId }
   });
 
   revalidatePath("/tasks")

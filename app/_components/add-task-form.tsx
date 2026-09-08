@@ -35,6 +35,7 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
       title: "",
       description: "",
       status: TaskStatus.PENDING,
+      created_at: "",
     },
     mode: "onSubmit",
     shouldUnregister: true, //clean all previously filled inputs

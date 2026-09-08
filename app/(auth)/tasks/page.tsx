@@ -35,7 +35,7 @@ export default async function TaskPage({ searchParams }: PageProps<"/tasks">) {
   const selectedDayParam = formatDay(selectedDay);
   const [tasks, dailyWorkedSeconds] = await Promise.all([
     getTasks(selectedDayParam),
-    getDailyWorkedSeconds(undefined, selectedDay),
+    getDailyWorkedSeconds(selectedDay),
   ]);
   const { hours, minutes, seconds } = formatSecondsToTime(dailyWorkedSeconds);
   return (

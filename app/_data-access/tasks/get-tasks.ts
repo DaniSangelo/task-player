@@ -1,3 +1,4 @@
+import { auth } from "@/app/_lib/auth";
 import { db } from "@/app/_lib/prisma";
 import type { Task } from "@/app/generated/prisma/client";
 
@@ -55,17 +56,37 @@ export const getTasks = async (day: string): Promise<TaskTableRow[]> => {
  * `GREATEST(started_at, startOfDay)` selects the effective start and
  * `LEAST(finished_at, endOfDay)` selects the effective finish. The difference
  * between those two timestamps is therefore the slice assigned to this day.
+ * The current running session is included because it is not written to the
+ * progress history until the task is paused or completed.
  */
 export const getDailyWorkedSeconds = async (
-  userId = "591f1101-7fc0-42d6-babf-5dfc2fc4a605",
   day = new Date(),
 ): Promise<number> => {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) throw new Error("Unauthorized user");
+
   const startOfDay = new Date(day);
   startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date(startOfDay);
   endOfDay.setDate(endOfDay.getDate() + 1);
 
   const result = await db.$queryRaw<{ total_seconds: number | null }[]>`
+    WITH progress_history AS (
+      SELECT history.task_id, history.started_at, history.finished_at
+      FROM task_progress_history AS history
+      INNER JOIN tasks AS task ON task.id = history.task_id
+      WHERE task.user_id = ${userId}::uuid
+
+      UNION ALL
+
+      SELECT task.id, task.started_at, CURRENT_TIMESTAMP
+      FROM tasks AS task
+      WHERE task.user_id = ${userId}::uuid
+        AND task.status = 'RUNNING'
+        AND task.started_at IS NOT NULL
+    )
     SELECT COALESCE(
       SUM(EXTRACT(EPOCH FROM (
         LEAST(history.finished_at, ${endOfDay})
@@ -73,10 +94,8 @@ export const getDailyWorkedSeconds = async (
       ))),
       0
     )::double precision AS total_seconds
-    FROM task_progress_history AS history
-    INNER JOIN tasks AS task ON task.id = history.task_id
-    WHERE task.user_id = ${userId}::uuid
-      AND history.started_at < ${endOfDay}
+    FROM progress_history AS history
+    WHERE history.started_at < ${endOfDay}
       AND history.finished_at > ${startOfDay}
   `;
 
