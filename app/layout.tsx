@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Poppins, Raleway, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/app/_lib/utils";
-import Header from "./_components/Header";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 

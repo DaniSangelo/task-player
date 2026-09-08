@@ -22,10 +22,12 @@ import {
   FormAuthLoginSchema,
 } from "../_actions/auth/login/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authUser } from "../_actions/auth/login";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
+  const router = useRouter();
   const form = useForm<FormAuthLoginSchema>({
     resolver: zodResolver(formAuthLoginSchema),
     defaultValues: {
@@ -37,10 +39,23 @@ const LoginForm = () => {
 
   const onSubmit = async (data: FormAuthLoginSchema) => {
     try {
-      await authUser(data);
-    } catch (error) {
-      console.log(error);
+      const result = await signIn("credentials", {
+        ...data,
+        redirect: false,
+      });
+
+      if (!result || result.error) {
+        throw new Error(result?.error);
+      }
+    } catch {
+      form.setError("root", {
+        message: "Email or password is incorrect",
+      });
+      return;
     }
+
+    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -95,6 +110,9 @@ const LoginForm = () => {
                 )}
               />
               <Field>
+                {form.formState.errors.root && (
+                  <FieldError errors={[form.formState.errors.root]} />
+                )}
                 <Button type="submit" className="rounded-full">
                   Login
                 </Button>
@@ -106,7 +124,10 @@ const LoginForm = () => {
                   Login with Google
                 </Button> */}
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link className="text-secondary-600" href="/sign-up">Sign up</Link>
+                  Don&apos;t have an account?{" "}
+                  <Link className="text-secondary-600" href="/sign-up">
+                    Sign up
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
