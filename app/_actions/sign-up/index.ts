@@ -1,18 +1,20 @@
+"use server";
+
 import { db } from "@/app/_lib/prisma";
 import { formSignupSchema, FormSignupSchema } from "./schema";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcryptjs";
 
 export const signupUser = async (data: FormSignupSchema) => {
-  formSignupSchema.parse(data);
-  const hashedPassword = await bcrypt.hash(data.password, 10);
+  const parsedData = formSignupSchema.parse(data);
+  const { first_name, last_name, email, password } = parsedData;
+  const hashedPassword = await bcrypt.hash(password, 12);
+
   await db.user.create({
     data: {
-      ...data,
+      first_name,
+      last_name,
+      email,
       password: hashedPassword,
-    }
-  })
-
-  //TODO:
-  //1. Redirect user
-  //2. Set token session
-}
+    },
+  });
+};
