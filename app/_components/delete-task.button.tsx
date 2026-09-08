@@ -28,7 +28,7 @@ const DeleteTaskButton = ({ task }: DeleteTaskButtonProps) => {
 
   const handleDelete = () => {
     startTransition(async () => {
-      await deleteTask({ id: task.id, user_id: task.user_id });
+      await deleteTask({ id: task.id });
       setIsOpen(false);
       router.refresh();
     });

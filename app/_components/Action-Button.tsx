@@ -71,7 +71,6 @@ const ActionButton = ({ task }: ActionButtonProps) => {
       try {
         const updatedTask = await updateTaskStatus({
           id: task.id,
-          user_id: task.user_id,
         });
         setOptimisticState({
           baseStatus: task.status as TaskStatusEnum,
