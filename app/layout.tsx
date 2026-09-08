@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Raleway, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/app/_lib/utils";
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         className="min-h-full flex flex-col bg-white"
         suppressHydrationWarning
       >
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

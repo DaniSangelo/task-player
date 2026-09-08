@@ -29,10 +29,14 @@ import {
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
+  const handleSignout = async () => {
+    await signOut({ redirectTo: "/auth/login" });
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white px-6 py-4 shadow-sm border-b border-secondary-50">
@@ -143,7 +147,7 @@ const Header = () => {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700">
+                <DropdownMenuItem className="hover:bg-secondary hover:text-primary-700 cursor-pointer" onClick={()=> handleSignout()}>
                   Log out
                   <LogOut />
                 </DropdownMenuItem>
