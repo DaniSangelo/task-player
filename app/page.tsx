@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
-import Banner from "./_components/Banner";
+import { auth } from "@/app/_lib/auth";
 
-export default async function Home() {
-  redirect('/auth/login');
-  // return <Banner />;
+export default async function Initial() {
+  const session = await auth();
+
+  if (session?.user?.id) redirect("/home");
+
+  redirect("/auth/login");
 }

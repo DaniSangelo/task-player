@@ -57,7 +57,7 @@ const Header = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/">Home</Link>}
-                className={`rounded-lg ${navigationMenuTriggerStyle()} ${path === "/" ? "relative font-semibold border-b-2 border-accent-700 text-primary-700" : ""}`}
+                className={`rounded-lg ${navigationMenuTriggerStyle()} ${path === "/home" ? "relative font-semibold border-b-2 border-accent-700 text-primary-700" : ""}`}
               />
             </NavigationMenuItem>
             <NavigationMenuItem>
