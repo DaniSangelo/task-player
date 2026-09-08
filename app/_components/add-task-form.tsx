@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
-import { PlusIcon } from "lucide-react";
+import { LoaderCircle, PlusIcon } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -27,6 +27,7 @@ interface AddTaskFormProps {
 
 const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<AddTaskSchema>({
     resolver: zodResolver(addTaskSchema),
@@ -34,21 +35,26 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
       title: "",
       description: "",
       status: TaskStatus.PENDING,
-      user_id: "",
-      created_at: undefined,
     },
     mode: "onSubmit",
     shouldUnregister: true, //clean all previously filled inputs
   });
 
-  const onSubmit = async (data: AddTaskSchema) => {
-    try {
-      await addTask(data);
-    } catch (error) {
-      console.log(`Something went wrong on add a new task: ${error?.message}`);
-    } finally {
-      setIsOpen(false);
-    }
+  const onSubmit = (data: AddTaskSchema) => {
+    startTransition(async () => {
+      try {
+        await addTask(data);
+        form.reset();
+        setIsOpen(false);
+      } catch (error) {
+        form.setError("root", {
+          message:
+            error instanceof Error
+              ? error.message
+              : "Something went wrong while adding the task.",
+        });
+      }
+    });
   };
 
   return (
@@ -116,8 +122,8 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
                   <DatePickerInput
                     id="form-date"
                     selectedDay={field.value || selectedDay}
+                    onDateChange={field.onChange}
                     navigateOnSelect={false}
-                    disabled
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -126,6 +132,9 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
               )}
             />
           </FieldGroup>
+          {form.formState.errors.root && (
+            <FieldError errors={[form.formState.errors.root]} className="mt-4" />
+          )}
           <DialogFooter className="mt-6">
             <DialogClose
               render={
@@ -134,8 +143,17 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
                 </Button>
               }
             />
-            <Button type="submit" className="rounded-full cursor-pointer">
-              Save
+            <Button
+              type="submit"
+              className="rounded-full cursor-pointer"
+              disabled={isPending}
+              aria-busy={isPending}
+            >
+              {isPending ? (
+                <LoaderCircle size={14} className="animate-spin" />
+              ) : (
+                "Save"
+              )}
             </Button>
           </DialogFooter>
         </form>
