@@ -58,11 +58,11 @@ const DeleteTaskButton = ({ task }: DeleteTaskButtonProps) => {
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-full" disabled={isPending}>
+          <AlertDialogCancel className="rounded-full cursor-pointer" disabled={isPending}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            className="rounded-full"
+            className="rounded-full cursor-pointer"
             onClick={handleDelete}
             disabled={isPending}
             aria-busy={isPending}
@@ -70,7 +70,7 @@ const DeleteTaskButton = ({ task }: DeleteTaskButtonProps) => {
             {isPending ? (
               <LoaderCircle size={14} className="animate-spin" />
             ) : (
-              "Continue"
+              "Confirm"
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

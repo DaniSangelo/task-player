@@ -55,7 +55,7 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger
         render={
-          <Button className="w-full rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center md:w-auto">
+          <Button className="w-full rounded-3xl text-white hover:translate-y-0.5 px-5 py-5 items-center md:w-auto cursor-pointer">
             <PlusIcon className="text-white" size={14} />
             Add task
           </Button>
@@ -129,12 +129,12 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
           <DialogFooter className="mt-6">
             <DialogClose
               render={
-                <Button variant="outline" className="rounded-full">
+                <Button variant="outline" className="rounded-full cursor-pointer">
                   Cancel
                 </Button>
               }
             />
-            <Button type="submit" className="rounded-full">
+            <Button type="submit" className="rounded-full cursor-pointer">
               Save
             </Button>
           </DialogFooter>

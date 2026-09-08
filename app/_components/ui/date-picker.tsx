@@ -115,7 +115,7 @@ export function DatePickerInput({
                   size="icon-xs"
                   aria-label="Select date"
                   disabled={disabled}
-                  className="rounded-full p-7"
+                  className="rounded-full p-7 cursor-pointer"
                 >
                   <CalendarIcon className="text-accent-400" size={16} />
                   {/* <span className="sr-only">Select date</span> */}
