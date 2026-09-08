@@ -5,7 +5,7 @@ import {
 } from "../../_data-access/tasks/get-tasks";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import AddTaskButton from "../../_components/add-task.button";
+import AddTaskButton from "../../_components/add-task-form";
 import { DatePickerInput } from "../../_components/ui/date-picker";
 import { formatSecondsToTime } from "../../_lib/shared/helper";
 

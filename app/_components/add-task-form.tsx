@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "../_components/ui/button";
+import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
 import {
   Dialog,
@@ -21,11 +21,11 @@ import { addTask } from "../_actions/task/add-task";
 import { addTaskSchema, AddTaskSchema } from "../_actions/task/add-task/schema";
 import { DatePickerInput } from "./ui/date-picker";
 
-interface AddTaskButtonProps {
+interface AddTaskFormProps {
   selectedDay: string | Date;
 }
 
-const AddTaskButton = ({ selectedDay }: AddTaskButtonProps) => {
+const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<AddTaskSchema>({
@@ -145,4 +145,4 @@ const AddTaskButton = ({ selectedDay }: AddTaskButtonProps) => {
   );
 };
 
-export default AddTaskButton;
+export default AddTaskForm;
