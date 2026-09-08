@@ -79,7 +79,6 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
                     aria-invalid={fieldState.invalid}
                     placeholder="Enter task title"
                     max={60}
-                    required
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
