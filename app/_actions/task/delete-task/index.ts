@@ -3,7 +3,7 @@
 import { db } from "@/app/_lib/prisma"
 import { revalidatePath } from "next/cache";
 import { DeleteTaskSchema } from "./schema";
-import auth from "@/middleware";
+import auth from "@/proxy";
 
 export const deleteTask = async (task: DeleteTaskSchema) => {
   const session = await auth();

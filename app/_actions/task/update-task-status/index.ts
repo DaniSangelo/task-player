@@ -5,7 +5,7 @@ import { UpdateTaskStatusSchema } from "./schema";
 import { revalidatePath } from "next/cache";
 import { updateTaskStatusSchema } from "./schema";
 import { closeTaskProgress } from "@/app/_lib/task-progress";
-import auth from "@/middleware";
+import auth from "@/proxy";
 
 export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
   const session = await auth();
