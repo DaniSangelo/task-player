@@ -6,5 +6,10 @@ const { auth } = NextAuth(authConfig);
 export default auth;
 
 export const config = {
-  matcher: [], // Adjust to your protected routes
+  matcher: [
+    '/tasks/:path*',
+    '/dashboard/:path*',
+    '/profile/:path*',
+    '/home/:path*',
+  ],
 };

@@ -15,6 +15,9 @@ export const authConfig = {
     })
   ],
   callbacks: {
+    authorized({ auth }) {
+      return !!auth;
+    },
     async jwt({ token, user }) {
       if (user) token.id = user.id;
       return token;
@@ -26,6 +29,9 @@ export const authConfig = {
   },
   session: {
     strategy: 'jwt',
+  },
+  pages: {
+    signIn: "/auth/login",
   },
   secret: process.env.AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET ?? process.env.JWT_SECRET,
 } satisfies NextAuthConfig;
