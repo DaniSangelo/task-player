@@ -49,3 +49,5 @@ next-env.d.ts
 !/prisma/migrations/20260905120000_add_task_progress_history/
 !/prisma/migrations/20260905120000_add_task_progress_history/migration.sql
 skills-lock.json
+
+.vscode
