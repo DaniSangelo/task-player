@@ -14,9 +14,20 @@ export const addTask = async (data: AddTaskSchema) => {
   }
 
   const task = addTaskSchema.parse(data);
-  const {created_at, ...restOfData} = task;
-  await db.task.create({
-    data: { ...restOfData, user_id: userId }
+  const restOfData = { ...task };
+  delete restOfData.created_at;
+  await db.$transaction(async (transaction) => {
+    const createdTask = await transaction.task.create({
+      data: { ...restOfData, user_id: userId },
+      select: { id: true },
+    });
+
+    await transaction.taskProgressHistory.create({
+      data: {
+        task_id: createdTask.id,
+        time_spent_seconds: 0,
+      },
+    });
   });
 
   revalidatePath("/tasks")

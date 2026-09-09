@@ -3,8 +3,9 @@ import { db } from "@/app/_lib/prisma";
 import type { Task } from "@/app/generated/prisma/client";
 
 //TODO: extrair o type para outro arquivo
-export type TaskTableRow = Omit<Task, "time_spent"> & {
+export type TaskTableRow = Task & {
   time_spent: number;
+  started_at: Date | null;
 };
 
 export const getTasks = async (day: string): Promise<TaskTableRow[]> => {
@@ -14,17 +15,24 @@ export const getTasks = async (day: string): Promise<TaskTableRow[]> => {
       task.title,
       task.description,
       COALESCE((
-        SELECT SUM(EXTRACT(EPOCH FROM (
-          LEAST(history.finished_at, ${day}::date + INTERVAL '1 day')
-          - GREATEST(history.started_at, ${day}::date)
-        )))
+        SELECT SUM(
+          CASE
+            WHEN history.finished_at IS NULL
+              THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - history.started_at))
+            ELSE history.time_spent_seconds
+          END
+        )
         FROM task_progress_history AS history
         WHERE history.task_id = task.id
-          AND history.started_at < ${day}::date + INTERVAL '1 day'
-          AND history.finished_at > ${day}::date
+          AND history.started_at IS NOT NULL
       ), 0)::double precision AS time_spent,
-      task.started_at,
-      task.finished_at,
+      (
+        SELECT history.started_at
+        FROM task_progress_history AS history
+        WHERE history.task_id = task.id
+          AND history.started_at IS NOT NULL
+          AND history.finished_at IS NULL
+      ) AS started_at,
       task.created_at,
       task.updated_at,
       task.user_id,
@@ -39,7 +47,7 @@ export const getTasks = async (day: string): Promise<TaskTableRow[]> => {
       FROM task_progress_history AS history
       WHERE history.task_id = task.id
         AND history.started_at < ${day}::date + INTERVAL '1 day'
-        AND history.finished_at > ${day}::date
+        AND COALESCE(history.finished_at, CURRENT_TIMESTAMP) > ${day}::date
     )
     ORDER BY
       CASE WHEN status = 'DONE' THEN 99
@@ -52,12 +60,8 @@ export const getTasks = async (day: string): Promise<TaskTableRow[]> => {
 /**
  * Sums only the portion of each progress session that belongs to the day.
  *
- * A session that crosses midnight is sliced by the SQL expression below:
- * `GREATEST(started_at, startOfDay)` selects the effective start and
- * `LEAST(finished_at, endOfDay)` selects the effective finish. The difference
- * between those two timestamps is therefore the slice assigned to this day.
- * The current running session is included because it is not written to the
- * progress history until the task is paused or completed.
+ * Stored seconds are distributed across calendar boundaries using session
+ * timestamps. Open sessions use the current time as their provisional finish.
  */
 export const getDailyWorkedSeconds = async (
   day = new Date(),
@@ -73,30 +77,33 @@ export const getDailyWorkedSeconds = async (
   endOfDay.setDate(endOfDay.getDate() + 1);
 
   const result = await db.$queryRaw<{ total_seconds: number | null }[]>`
-    WITH progress_history AS (
-      SELECT history.task_id, history.started_at, history.finished_at
+    WITH sessions AS (
+      SELECT
+        history.started_at,
+        COALESCE(history.finished_at, CURRENT_TIMESTAMP) AS finished_at,
+        CASE
+          WHEN history.finished_at IS NULL
+            THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - history.started_at))
+          ELSE history.time_spent_seconds
+        END AS time_spent_seconds
       FROM task_progress_history AS history
       INNER JOIN tasks AS task ON task.id = history.task_id
       WHERE task.user_id = ${userId}::uuid
-
-      UNION ALL
-
-      SELECT task.id, task.started_at, CURRENT_TIMESTAMP
-      FROM tasks AS task
-      WHERE task.user_id = ${userId}::uuid
-        AND task.status = 'RUNNING'
-        AND task.started_at IS NOT NULL
     )
     SELECT COALESCE(
-      SUM(EXTRACT(EPOCH FROM (
-        LEAST(history.finished_at, ${endOfDay})
-        - GREATEST(history.started_at, ${startOfDay})
-      ))),
+      SUM(
+        sessions.time_spent_seconds
+        * EXTRACT(EPOCH FROM (
+            LEAST(sessions.finished_at, ${endOfDay})
+            - GREATEST(sessions.started_at, ${startOfDay})
+          ))
+        / NULLIF(EXTRACT(EPOCH FROM (sessions.finished_at - sessions.started_at)), 0)
+      ),
       0
     )::double precision AS total_seconds
-    FROM progress_history AS history
-    WHERE history.started_at < ${endOfDay}
-      AND history.finished_at > ${startOfDay}
+    FROM sessions
+    WHERE sessions.started_at < ${endOfDay}
+      AND sessions.finished_at > ${startOfDay}
   `;
 
   return result[0]?.total_seconds ?? 0;
@@ -111,8 +118,12 @@ export const getMonthlyWorkedHours = async (
   startMonth: number,
   endMonth: number,
   year: number,
-  userId = "591f1101-7fc0-42d6-babf-5dfc2fc4a605",
 ): Promise<MonthlyWorkedHours[]> => {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) throw new Error("Unauthorized user");
+
   return await db.$queryRaw<MonthlyWorkedHours[]>`
     WITH months AS (
       SELECT generate_series(
@@ -120,33 +131,36 @@ export const getMonthlyWorkedHours = async (
         make_date(${year}, ${endMonth}, 1),
         INTERVAL '1 month'
       ) AS month_start
-    ), progress_history AS (
-      SELECT history.started_at, history.finished_at
+    ), sessions AS (
+      SELECT
+        history.started_at,
+        COALESCE(history.finished_at, CURRENT_TIMESTAMP) AS finished_at,
+        CASE
+          WHEN history.finished_at IS NULL
+            THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - history.started_at))
+          ELSE history.time_spent_seconds
+        END AS time_spent_seconds
       FROM task_progress_history AS history
       INNER JOIN tasks AS task ON task.id = history.task_id
       WHERE task.user_id = ${userId}::uuid
-
-      UNION ALL
-
-      SELECT task.started_at, CURRENT_TIMESTAMP
-      FROM tasks AS task
-      WHERE task.user_id = ${userId}::uuid
-        AND task.status = 'RUNNING'
-        AND task.started_at IS NOT NULL
-    ) 
+    )
     SELECT
       to_char(months.month_start, 'YYYY-MM') AS month,
       COALESCE(
-        SUM(EXTRACT(EPOCH FROM (
-          LEAST(history.finished_at, months.month_start + INTERVAL '1 month')
-          - GREATEST(history.started_at, months.month_start)
-        ))) / 3600,
+        SUM(
+          sessions.time_spent_seconds
+          * EXTRACT(EPOCH FROM (
+              LEAST(sessions.finished_at, months.month_start + INTERVAL '1 month')
+              - GREATEST(sessions.started_at, months.month_start)
+            ))
+          / NULLIF(EXTRACT(EPOCH FROM (sessions.finished_at - sessions.started_at)), 0)
+        ) / 3600,
         0
       )::double precision AS total_hours
     FROM months
-    INNER JOIN progress_history AS history
-      ON history.started_at < months.month_start + INTERVAL '1 month'
-      AND history.finished_at > months.month_start
+    LEFT JOIN sessions
+      ON sessions.started_at < months.month_start + INTERVAL '1 month'
+      AND sessions.finished_at > months.month_start
     GROUP BY months.month_start
     ORDER BY months.month_start
   `;

@@ -38,8 +38,7 @@ export const updateTaskStatusToDoneOrUndone = async (task: DoneTaskSchema) => {
       UPDATE tasks
       SET
         status = ${task.status}::"TaskStatus",
-        updated_at = CURRENT_TIMESTAMP,
-        finished_at = ${task.status === TaskStatusEnum.DONE ? new Date() : null}
+        updated_at = CURRENT_TIMESTAMP
       WHERE id = ${data.id}::uuid
         AND user_id = ${data.user_id}::uuid
     `;

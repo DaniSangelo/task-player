@@ -25,9 +25,8 @@ export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
     const currentTasks = await transaction.$queryRaw<{
       id: string;
       status: string;
-      started_at: Date | null;
     }[]>`
-      SELECT id, status, started_at
+      SELECT id, status
       FROM tasks
       WHERE id = ${data.id}::uuid
         AND user_id = ${userId}::uuid
@@ -57,9 +56,28 @@ export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
 
       await transaction.$executeRaw`
         UPDATE tasks
-        SET status = 'RUNNING', started_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        SET status = 'RUNNING', updated_at = CURRENT_TIMESTAMP
         WHERE id = ${data.id}::uuid
           AND user_id = ${userId}::uuid
+      `;
+
+      await transaction.$executeRaw`
+        INSERT INTO task_progress_history (
+          task_id,
+          time_spent_seconds,
+          started_at,
+          finished_at,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          ${data.id}::uuid,
+          0,
+          CURRENT_TIMESTAMP,
+          NULL,
+          CURRENT_TIMESTAMP,
+          CURRENT_TIMESTAMP
+        )
       `;
     } else if (currentTask.status === "DONE") {
       await transaction.$executeRaw`
@@ -73,12 +91,21 @@ export const updateTaskStatus = async (task: UpdateTaskStatusSchema) => {
     const updatedTasks = await transaction.$queryRaw<{
       status: string;
       time_spent: number;
-      started_at: Date | null;
     }[]>`
       SELECT
         status,
-        EXTRACT(EPOCH FROM time_spent)::double precision AS time_spent,
-        started_at
+        COALESCE((
+          SELECT SUM(
+            CASE
+              WHEN history.finished_at IS NULL
+                THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - history.started_at))
+              ELSE history.time_spent_seconds
+            END
+          )
+          FROM task_progress_history AS history
+          WHERE history.task_id = tasks.id
+            AND history.started_at IS NOT NULL
+        ), 0)::double precision AS time_spent
       FROM tasks
       WHERE id = ${data.id}::uuid
         AND user_id = ${userId}::uuid
