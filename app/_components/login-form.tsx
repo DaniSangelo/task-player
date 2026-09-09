@@ -27,6 +27,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import PasswordInput from "./password-input";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -107,25 +108,7 @@ const LoginForm = () => {
                         Forgot your password?
                       </a> */}
                     </div>
-                    <div className="relative flex items-center">
-                      <Input
-                        {...field}
-                        id="password"
-                        type={`${showPassword ? "text" : "password"}`}
-                        className="pr-10"
-                      />
-                      <button
-                        className="absolute right-3 cursor-pointer hover:text-secondary-600"
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff size={14} />
-                        ) : (
-                          <Eye size={14} />
-                        )}
-                      </button>
-                    </div>
+                    <PasswordInput {...field} id="password" />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}

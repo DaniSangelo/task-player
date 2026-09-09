@@ -22,10 +22,15 @@ import { formSignupSchema, FormSignupSchema } from "../_actions/sign-up/schema";
 import { signupUser } from "../_actions/sign-up";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import PasswordInput from "./password-input";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const router = useRouter();
   const form = useForm<FormSignupSchema>({
     resolver: zodResolver(formSignupSchema),
@@ -38,7 +43,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     },
   });
 
-  const onSubmit =  (data: FormSignupSchema) => {
+  const onSubmit = (data: FormSignupSchema) => {
     startTransition(async () => {
       try {
         await signupUser(data);
@@ -49,7 +54,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           message: "Unable to create your account. Please try again.",
         });
       }
-    })
+    });
   };
 
   return (
@@ -126,12 +131,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor="form-password">Password</FieldLabel>
-                  <Input
-                    aria-invalid={fieldState.invalid}
-                    id="form-password"
-                    type="password"
-                    {...field}
-                  />
+                  <PasswordInput {...field} id="form-password" />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -146,12 +146,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   <FieldLabel htmlFor="form-confirm-password">
                     Confirm Password
                   </FieldLabel>
-                  <Input
-                    aria-invalid={fieldState.invalid}
-                    id="form-confirm-password"
-                    type="password"
-                    {...field}
-                  />
+                  <PasswordInput {...field} id="form-confirm-password" />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -163,7 +158,11 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 {form.formState.errors.root && (
                   <FieldError errors={[form.formState.errors.root]} />
                 )}
-                <Button className="rounded-full" type="submit" disabled={isPending}>
+                <Button
+                  className="rounded-full"
+                  type="submit"
+                  disabled={isPending}
+                >
                   Create Account
                 </Button>
                 {/* <Button className="rounded-full" variant="outline" type="button">
