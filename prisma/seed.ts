@@ -2,7 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient, TaskStatus } from "../app/generated/prisma/client";
 
-const userId = "591f1101-7fc0-42d6-babf-5dfc2fc4a605";
+const userId = "ec155878-b946-461f-ab8c-fcef68453775";
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
@@ -76,6 +76,14 @@ const atMonthTime = (
   return new Date(year, month, day, hour, minute, 0, 0);
 };
 
+type ProgressSeed = {
+  id: string;
+  task_id: string;
+  time_spent_seconds: number;
+  started_at: Date | null;
+  finished_at: Date | null;
+};
+
 async function main() {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -110,14 +118,6 @@ async function main() {
       status,
       created_at: number === 1 ? now : createdAt,
       updated_at: number === 1 ? now : updatedAt,
-      started_at:
-        status === TaskStatus.RUNNING
-          ? new Date(now.getTime() - 45 * 60 * 1000)
-          : null,
-      finished_at:
-        status === TaskStatus.DONE
-          ? atMonthTime(seedYear, month, 18 + (number % 7), 17, 30)
-          : null,
       user_id: userId,
     };
   });
@@ -132,26 +132,38 @@ async function main() {
         status: task.status,
         created_at: task.created_at,
         updated_at: task.updated_at,
-        started_at: task.started_at,
-        finished_at: task.finished_at,
       },
     });
   }
 
-  // Pending tasks intentionally have no progress records.
-  const progressHistory = tasks
-    .filter(
-      (task) =>
-        task.status !== TaskStatus.PENDING && task.status !== TaskStatus.RUNNING,
-    )
-    .flatMap((task, index) => {
-      const taskNumber = index + 1;
-      const taskMonth = task.created_at!.getMonth();
+  // Pending tasks get a zero baseline; running tasks get an open session.
+  const progressHistory: ProgressSeed[] = tasks
+    .flatMap((task, index): ProgressSeed[] => {
+      if (task.status === TaskStatus.PENDING) {
+        return [{
+          id: historyId(500 + index + 1),
+          task_id: task.id,
+          time_spent_seconds: 0,
+          started_at: null,
+          finished_at: null,
+        }];
+      }
 
-      return [
-        0,
-        1,
-      ].map((session) => {
+      if (task.status === TaskStatus.RUNNING) {
+        const startedAt = new Date(now.getTime() - 45 * 60 * 1000);
+        return [{
+          id: historyId(500 + index + 1),
+          task_id: task.id,
+          time_spent_seconds: 0,
+          started_at: startedAt,
+          finished_at: null,
+        }];
+      }
+
+      return [0, 1].map((session) => {
+        const taskNumber = index + 1;
+        const taskMonth = task.created_at!.getMonth();
+
         const startedAt = atMonthTime(
           seedYear,
           taskMonth,
@@ -178,26 +190,10 @@ async function main() {
   await prisma.taskProgressHistory.createMany({
     data: progressHistory.map((progress) => ({
       ...progress,
-      created_at: progress.finished_at,
-      updated_at: progress.finished_at,
+      created_at: progress.finished_at ?? now,
+      updated_at: progress.finished_at ?? now,
     })),
   });
-
-  for (const task of tasks) {
-    await prisma.$executeRaw`
-      UPDATE tasks
-      SET time_spent = COALESCE(
-        (
-          SELECT SUM(history.time_spent_seconds) * INTERVAL '1 second'
-          FROM task_progress_history AS history
-          WHERE history.task_id = ${task.id}::uuid
-        ),
-        INTERVAL '0 seconds'
-      )
-      WHERE id = ${task.id}::uuid
-        AND user_id = ${userId}::uuid
-    `;
-  }
 
   console.log(
     `${tasks.length} task(s) and ${progressHistory.length} progress record(s) seeded for user ${userId}`,
