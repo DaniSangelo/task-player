@@ -25,9 +25,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 const LoginForm = () => {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+
   const form = useForm<FormAuthLoginSchema>({
     resolver: zodResolver(formAuthLoginSchema),
     defaultValues: {
@@ -47,7 +51,8 @@ const LoginForm = () => {
       if (!result || result.error) {
         throw new Error(result?.error);
       }
-    } catch {
+    } catch (error) {
+      console.log(error);
       form.setError("root", {
         message: "Email or password is incorrect",
       });
@@ -102,7 +107,25 @@ const LoginForm = () => {
                         Forgot your password?
                       </a> */}
                     </div>
-                    <Input {...field} id="password" type="password" />
+                    <div className="relative flex items-center">
+                      <Input
+                        {...field}
+                        id="password"
+                        type={`${showPassword ? "text" : "password"}`}
+                        className="pr-10"
+                      />
+                      <button
+                        className="absolute right-3 cursor-pointer hover:text-secondary-600"
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={14} />
+                        ) : (
+                          <Eye size={14} />
+                        )}
+                      </button>
+                    </div>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
