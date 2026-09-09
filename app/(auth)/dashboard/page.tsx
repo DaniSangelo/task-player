@@ -1,14 +1,23 @@
+import TotalHoursMonthPerTaskStatus from "@/app/_components/total-hours-month-per-task-status";
+import { addDays } from "date-fns";
 import TotalHoursMonthChart from "../../_components/total-hours-month.chart";
 import { DatePickerWithRange } from "../../_components/ui/range-date-picker";
 import {
   getMonthlyWorkedHours,
   MonthlyWorkedHours,
+  MonthlyWorkedHoursByStatus,
+  totalHoursMonthByStatus,
 } from "../../_data-access/tasks/get-tasks";
 import { getDashboardDateRange } from "../../_lib/dashboard-date-range";
 import { formatSecondsToTime } from "../../_lib/shared/helper";
 
 export interface TransformedMonthlyWorkedHours extends MonthlyWorkedHours {
   year_month: string;
+  total_in_time: string;
+}
+
+export interface TotalHoursPerMonthAndStatus extends MonthlyWorkedHoursByStatus {
+  fill: string;
   total_in_time: string;
 }
 
@@ -22,6 +31,10 @@ const DashboardPage = async ({ searchParams }: PageProps<"/dashboard">) => {
     startMonth,
     endMonth,
     year,
+  );
+  const totalHoursPerMonthAndStatus = await totalHoursMonthByStatus(
+    dateRange.from,
+    addDays(dateRange.to, 1),
   );
   const transformed = totalHoursPerMonthData.map((m) => {
     const { hours, minutes } = formatSecondsToTime(m.total_hours * 3600);
@@ -38,6 +51,17 @@ const DashboardPage = async ({ searchParams }: PageProps<"/dashboard">) => {
     };
   });
 
+  const transformedStatus = totalHoursPerMonthAndStatus.map((t) => {
+    const { hours, minutes } = formatSecondsToTime(t.total_hours * 3600);
+
+    return {
+      ...t,
+      status: t.status.toLowerCase(),
+      fill: `var(--color-${t.status.toLowerCase()})`,
+      total_in_time: `${hours}:${minutes}`,
+    };
+  });
+
   return (
     <div className="p-3 flex flex-col space-y-3 w-full">
       <div className="md:mr-auto p-2">
@@ -46,8 +70,12 @@ const DashboardPage = async ({ searchParams }: PageProps<"/dashboard">) => {
           initialRange={dateRange}
         />
       </div>
-      <div>
+      <div className="flex flex-col space-y-5">
         <TotalHoursMonthChart chartData={transformed} dateRange={dateRange} />
+        <TotalHoursMonthPerTaskStatus
+          chartData={transformedStatus}
+          dateRange={dateRange}
+        />
       </div>
     </div>
   );

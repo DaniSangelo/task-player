@@ -25,7 +25,7 @@ const chartConfig = {
   settings: {},
 } satisfies ChartConfig;
 
-interface TotalHOurMonthChartProps {
+interface TotalHourMonthChartProps {
   chartData: TransformedMonthlyWorkedHours[];
   dateRange: DateFilterRange;
 }
@@ -33,7 +33,7 @@ interface TotalHOurMonthChartProps {
 const TotalHoursMonthChart = ({
   chartData,
   dateRange,
-}: TotalHOurMonthChartProps) => {
+}: TotalHourMonthChartProps) => {
   const maxDataValue = chartData.length
     ? Math.max(...chartData.map((d) => d.total_hours))
     : 1;
