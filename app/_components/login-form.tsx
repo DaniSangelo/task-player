@@ -54,7 +54,7 @@ const LoginForm = () => {
       return;
     }
 
-    router.push("/");
+    router.push("/home");
     router.refresh();
   };
 

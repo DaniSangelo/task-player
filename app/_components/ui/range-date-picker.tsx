@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { type DateRange } from "react-day-picker";
 import type { DateFilterRange } from "@/app/_lib/dashboard-date-range";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
-import { Field, FieldLabel } from "./field";
+import { Field } from "./field";
 import { Button } from "./button";
 import { Calendar } from "./calendar";
 
@@ -52,7 +52,7 @@ export function DatePickerWithRange({
 
   return (
     <Field className="mx-auto w-60 ">
-      <FieldLabel htmlFor="date-picker-range">Date Picker Range</FieldLabel>
+      {/* <FieldLabel htmlFor="date-picker-range">Date Picker Range</FieldLabel> */}
       <Popover>
         <PopoverTrigger
           render={
