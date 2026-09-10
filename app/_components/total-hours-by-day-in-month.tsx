@@ -17,6 +17,7 @@ import {
 import { MonthlyWorkedHoursByDay } from "../_data-access/tasks/get-tasks";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { formatSecondsToTime } from "../_lib/shared/helper";
 
 const months = [
   [
@@ -142,7 +143,11 @@ const TotalHoursByDayInMonth = ({
             <YAxis
               tickLine={false}
               axisLine={false}
-              tickFormatter={(val) => `${val}h`}
+              tickFormatter={(val) => {
+                const {hours, minutes } = formatSecondsToTime(val * 3600)
+                return `${hours}:${minutes}`
+              }}
+              dataKey="total_hours"
             />
             <ChartTooltip
               cursor={false}
