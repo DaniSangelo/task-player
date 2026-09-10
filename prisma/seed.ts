@@ -61,9 +61,6 @@ const statuses = [
   TaskStatus.DONE,
   TaskStatus.PAUSED,
   TaskStatus.PENDING,
-  TaskStatus.DONE,
-  TaskStatus.PAUSED,
-  TaskStatus.PENDING,
 ];
 
 const atMonthTime = (

@@ -59,7 +59,7 @@ const TotalHoursMonthPerTaskStatus = ({
   return (
     <Card className="flex flex-col rounded-lg ml-3">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Total monthly hours on each status</CardTitle>
+        <CardTitle>Total hours on each status in the period</CardTitle>
         <CardDescription>
           {initialMonthName === endMonthName
             ? `${initialMonthName}/${year}`

@@ -216,3 +216,55 @@ export const totalHoursMonthByStatus = async (
     ORDER BY task.status
     `;
 }
+
+export type MonthlyWorkedHoursByDay = {
+  day: string;
+  total_hours: number;
+  total_in_time: string;
+};
+
+export const totalHoursMonthByDay = async (
+  startDate: Date,
+  endDate: Date,
+): Promise<MonthlyWorkedHoursByDay[]> => {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) throw new Error("Unauthorized user");
+
+  return await db.$queryRaw<MonthlyWorkedHoursByDay[]>`
+    SELECT
+      to_char(history.started_at, 'DD') as day,
+      COALESCE(
+        SUM(
+          CASE
+            WHEN history.finished_at IS NULL
+              THEN EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - history.started_at))
+            ELSE history.time_spent_seconds
+          END
+          * EXTRACT(EPOCH FROM (
+              LEAST(
+                COALESCE(history.finished_at, CURRENT_TIMESTAMP),
+                ${endDate}
+              ) - GREATEST(history.started_at, ${startDate})
+            ))
+          / NULLIF(
+              EXTRACT(EPOCH FROM (
+                COALESCE(history.finished_at, CURRENT_TIMESTAMP)
+                - history.started_at
+              )),
+              0
+            )
+        ) / 3600,
+        0
+      )::double precision AS total_hours
+    FROM task_progress_history AS history
+    INNER JOIN tasks AS task
+      ON task.id = history.task_id
+    WHERE task.user_id = ${userId}::uuid
+      AND history.started_at < ${endDate}
+      AND COALESCE(history.finished_at, CURRENT_TIMESTAMP) > ${startDate}
+    GROUP BY to_char(history.started_at, 'DD')
+    ORDER BY to_char(history.started_at, 'DD');
+    `;
+}
