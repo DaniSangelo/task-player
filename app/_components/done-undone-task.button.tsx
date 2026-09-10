@@ -5,6 +5,7 @@ import { Task } from "../generated/prisma/client";
 import { Button } from "./ui/button";
 import { updateTaskStatusToDoneOrUndone } from "../_actions/task/task-to-done";
 import { TaskStatusEnum } from "../_lib/enums/task.enum";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface IconProps {
   size?: string | number;
@@ -49,22 +50,33 @@ const DoneUndoneTaskButton = ({
   };
 
   return (
-    <Button
-      type="button"
-      variant="none"
-      className="cursor-pointer"
-      size="sm"
-      onClick={handleDoneTaskClick}
-      disabled={isPending}
-      aria-busy={isPending}
-      {...rest}
-    >
-      {isPending ? (
-        <LoaderCircle size={14} className="animate-spin" />
-      ) : (
-        IconComponent && <IconComponent size={14} {...iconProps} />
-      )}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            type="button"
+            variant="none"
+            className="cursor-pointer"
+            size="sm"
+            onClick={handleDoneTaskClick}
+            disabled={isPending}
+            aria-busy={isPending}
+            {...rest}
+          >
+            {isPending ? (
+              <LoaderCircle size={14} className="animate-spin" />
+            ) : (
+              IconComponent && <IconComponent size={14} {...iconProps} />
+            )}
+          </Button>
+        }
+      />
+      <TooltipContent className="bg-secondary-100 text-accent-700 rounded-lg" sideOffset={2}>
+        <p className="text-xs font-heading">
+          {status === TaskStatusEnum.DONE ? 'mark as done' : 'mark as undone'}
+        </p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 

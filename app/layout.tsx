@@ -3,6 +3,7 @@ import { Poppins, Raleway, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/app/_lib/utils";
 import { SessionProvider } from "next-auth/react";
+import { TooltipProvider } from "./_components/ui/tooltip";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -39,7 +40,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         className="min-h-full flex flex-col bg-white"
         suppressHydrationWarning
       >
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </SessionProvider>
       </body>
     </html>
   );
