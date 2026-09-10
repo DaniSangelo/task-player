@@ -45,12 +45,15 @@ const DashboardPage = async ({ searchParams }: PageProps<"/dashboard">) => {
   const monthStartDate = startOfMonth(new Date(currentYear, selectedMonth, 1));
   const monthEndDate = endOfMonth(monthStartDate);
 
-  const [totalHoursPerMonthData, totalHoursPerMonthAndStatus, totalHoursByDayInMonth] =
-    await Promise.all([
-      getMonthlyWorkedHours(startMonth, endMonth, year),
-      totalHoursMonthByStatus(dateRange.from, addDays(dateRange.to, 1)),
-      totalHoursMonthByDay(monthStartDate, addDays(monthEndDate, 1)),
-    ]);
+  const [
+    totalHoursPerMonthData,
+    totalHoursPerMonthAndStatus,
+    totalHoursByDayInMonth,
+  ] = await Promise.all([
+    getMonthlyWorkedHours(startMonth, endMonth, year),
+    totalHoursMonthByStatus(dateRange.from, addDays(dateRange.to, 1)),
+    totalHoursMonthByDay(monthStartDate, addDays(monthEndDate, 1)),
+  ]);
   const transformed = totalHoursPerMonthData.map((m) => {
     const { hours, minutes } = formatSecondsToTime(m.total_hours * 3600);
     const month = m.month.substring(5, 7);
@@ -83,28 +86,28 @@ const DashboardPage = async ({ searchParams }: PageProps<"/dashboard">) => {
     return {
       ...d,
       total_in_time: `${hours}:${minutes}`,
-    }
-  })
+    };
+  });
 
   return (
-    <div className="p-3 flex flex-col space-y-3 w-full">
+    <div className="p-2 flex flex-col space-y-3 w-full">
       <div className="md:mr-auto p-2">
         <DatePickerWithRange
           key={`${dateRange.from.toISOString()}-${dateRange.to.toISOString()}`}
           initialRange={dateRange}
         />
       </div>
-      <div className="flex flex-col space-y-5">
+      <div className="flex flex-col space-y-5 w-full md:flex-row md:space-x-3 md:space-y-0">
         <TotalHoursMonthChart chartData={transformed} dateRange={dateRange} />
         <TotalHoursMonthPerTaskStatus
           chartData={transformedStatus}
           dateRange={dateRange}
         />
-        <TotalHoursByDayInMonth
-          chartData={transformedByDay}
-          selectedMonth={selectedMonth}
-        />
       </div>
+      <TotalHoursByDayInMonth
+        chartData={transformedByDay}
+        selectedMonth={selectedMonth}
+      />
     </div>
   );
 };

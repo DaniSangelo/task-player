@@ -44,7 +44,8 @@ const TotalHoursMonthChart = ({
   const year = format(dateRange.to, "yyyy");
 
   return (
-    <Card className="min-h-full w-full shadow-sm ml-3 rounded-lg">
+    // <Card className="min-h-full w-full shadow-sm ml-3 rounded-lg">
+    <Card className="shadow-sm rounded-lg">
       <CardHeader>
         <CardTitle className="uppercase tracking-wide">
           Total hours per month

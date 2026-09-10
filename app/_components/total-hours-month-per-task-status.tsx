@@ -57,9 +57,10 @@ const TotalHoursMonthPerTaskStatus = ({
   const year = format(dateRange.to, "yyyy");
 
   return (
-    <Card className="flex flex-col rounded-lg ml-3">
+    <Card className="rounded-lg shadow-sm md:w-[50%]">
+      {/* <Card className="flex flex-col rounded-lg ml-3"> */}
       <CardHeader className="items-center pb-0">
-        <CardTitle>Total hours on each status in the period</CardTitle>
+        <CardTitle>Total hours in the period by status</CardTitle>
         <CardDescription>
           {initialMonthName === endMonthName
             ? `${initialMonthName}/${year}`
@@ -75,14 +76,14 @@ const TotalHoursMonthPerTaskStatus = ({
             <ChartTooltip
               cursor={false}
               content={
-              <ChartTooltipContent
-                hideLabel
-                formatter={(value, name, item) => {
-                  const originalData = item.payload;
-                  return originalData?.total_in_time || value;
-                }}
-              />
-            }
+                <ChartTooltipContent
+                  hideLabel
+                  formatter={(value, name, item) => {
+                    const originalData = item.payload;
+                    return originalData?.total_in_time || value;
+                  }}
+                />
+              }
             />
             <Pie
               data={chartData}
