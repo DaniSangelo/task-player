@@ -14,11 +14,17 @@ export const addTask = async (data: AddTaskSchema) => {
   }
 
   const task = addTaskSchema.parse(data);
-  const restOfData = { ...task };
-  delete restOfData.created_at;
   await db.$transaction(async (transaction) => {
     const createdTask = await transaction.task.create({
-      data: { ...restOfData, user_id: userId },
+      data: {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        user_id: userId,
+        ...(task.created_at
+          ? { created_at: new Date(`${task.created_at}T12:00:00.000Z`) }
+          : {}),
+      },
       select: { id: true },
     });
 

@@ -29,6 +29,9 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  const formatLocalDate = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
   const form = useForm<AddTaskSchema>({
     resolver: zodResolver(addTaskSchema),
     defaultValues: {
@@ -123,7 +126,9 @@ const AddTaskForm = ({ selectedDay }: AddTaskFormProps) => {
                   <DatePickerInput
                     id="form-date"
                     selectedDay={field.value || selectedDay}
-                    onDateChange={field.onChange}
+                    onDateChange={(date) =>
+                      field.onChange(formatLocalDate(date))
+                    }
                     navigateOnSelect={false}
                   />
                   {fieldState.invalid && (
