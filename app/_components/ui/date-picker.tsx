@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Field } from "./field";
 import {
@@ -12,6 +12,7 @@ import {
 } from "./input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Calendar } from "./calendar";
+import { addDays, subDays } from "date-fns";
 
 function formatDate(date: Date | undefined) {
   if (!date) {
@@ -85,67 +86,86 @@ export function DatePickerInput({
     }
   };
 
-  return (
-    <Field className="mx-auto w-48">
-      <InputGroup>
-        <InputGroupInput
-          id={id}
-          value={value}
-          disabled={disabled}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={selectTypedDate}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              setOpen(true);
-            }
-            if (e.key === "Enter") {
-              e.preventDefault();
-              selectTypedDate();
-            }
-          }}
-        />
-        <InputGroupAddon align="inline-end">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger
-              render={
-                <InputGroupButton
-                  id="date-picker"
-                  variant="ghost"
-                  size="icon-xs"
-                  aria-label="Select date"
-                  disabled={disabled}
-                  className="rounded-full p-7 cursor-pointer"
-                >
-                  <CalendarIcon className="text-accent-400" size={16} />
-                  {/* <span className="sr-only">Select date</span> */}
-                </InputGroupButton>
-              }
-            />
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="end"
-              alignOffset={-8}
-              sideOffset={10}
-            >
-              <Calendar
-                mode="single"
-                selected={date}
-                month={month}
-                onMonthChange={setMonth}
-                onSelect={(date) => {
-                  if (!date) {
-                    return;
-                  }
+  const setPreviousDate = () => {
+    if (!date) return
+    const previousDate = subDays(date,1);
+    selectDate(previousDate);
+  }
 
-                  selectDate(date);
-                  setOpen(false);
-                }}
+  const setNextDate = () => {
+    if (!date) return
+    const nextDate = addDays(date,1);
+    selectDate(nextDate);
+  }
+
+  return (
+    <div className="flex gap-2 items-center">
+      <button className="hover:scale-[1.08] cursor-pointer" onClick={setPreviousDate}>
+        <ChevronLeftIcon size={16} />
+      </button>
+      <Field className="mx-auto w-48">
+        <InputGroup>
+          <InputGroupInput
+            id={id}
+            value={value}
+            disabled={disabled}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={selectTypedDate}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setOpen(true);
+              }
+              if (e.key === "Enter") {
+                e.preventDefault();
+                selectTypedDate();
+              }
+            }}
+          />
+          <InputGroupAddon align="inline-end">
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger
+                render={
+                  <InputGroupButton
+                    id="date-picker"
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Select date"
+                    disabled={disabled}
+                    className="rounded-full p-7 cursor-pointer"
+                  >
+                    <CalendarIcon className="text-accent-400" size={16} />
+                    {/* <span className="sr-only">Select date</span> */}
+                  </InputGroupButton>
+                }
               />
-            </PopoverContent>
-          </Popover>
-        </InputGroupAddon>
-      </InputGroup>
-    </Field>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="end"
+                alignOffset={-8}
+                sideOffset={10}
+              >
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  month={month}
+                  onMonthChange={setMonth}
+                  onSelect={(date) => {
+                    if (!date) {
+                      return;
+                    }
+                    selectDate(date);
+                    setOpen(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          </InputGroupAddon>
+        </InputGroup>
+      </Field>
+      <button className="hover:scale-[1.08] cursor-pointer" onClick={setNextDate}>
+        <ChevronRightIcon size={16} />
+      </button>
+    </div>
   );
 }
