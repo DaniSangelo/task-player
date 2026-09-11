@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createColumnHelper } from "@tanstack/react-table";
 
 import { type DataTableFeatures } from "./data-table-features";
@@ -14,8 +16,54 @@ import TaskTime from "../../_components/Task-Time";
 import DeleteTaskButton from "../../_components/delete-task.button";
 import DoneUndoneTaskButton from "../../_components/done-undone-task.button";
 import { Badge } from "../../_components/ui/badge";
+import { Dialog, DialogTrigger } from "@/app/_components/ui/dialog";
+import EditTaskForm from "@/app/_components/edit-task-form";
 
 const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
+
+function EditTaskDialog({ task }: { task: TaskTableRow }) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger
+        render={
+          <button>
+            <div className="flex flex-col space-y-4 cursor-pointer">
+              <span
+                className={`${task.status === TaskStatusEnum.DONE ? "line-through" : ""} font-bold text-md`}
+              >
+                {task.title}
+              </span>
+              <Badge
+                className={`
+                rounded-full p-1 ${
+                  task.status === TaskStatusEnum.RUNNING
+                    ? "text-accent-300 fill-accent-300 bg-accent-700"
+                    : task.status === TaskStatusEnum.DONE
+                      ? "outline-1 outline-accent-400 text-accent-300"
+                      : "bg-secondary/25 text-accent-700"
+                }
+                `}
+                variant="outline"
+              >
+                {TaskDescriptionEnum[task.status]}
+              </Badge>
+            </div>
+          </button>
+        }
+      />
+      <EditTaskForm
+        defaultValues={task}
+        onSaved={() => {
+          setOpen(false);
+          router.refresh();
+        }}
+      />
+    </Dialog>
+  );
+}
 
 export const columns = columnHelper.columns([
   columnHelper.display({
@@ -35,28 +83,7 @@ export const columns = columnHelper.columns([
       return (
         <div className="flex items-center gap-3 sm:gap-8">
           <ActionButton task={row.original} />
-          <div className="flex flex-col space-y-4">
-            <span
-              className={`${row.original.status === TaskStatusEnum.DONE ? "line-through" : ""} font-bold text-md`}
-            >
-              {row.original.title}
-            </span>
-            <Badge
-              className={`
-                rounded-full p-1 ${
-                  row.original.status === TaskStatusEnum.RUNNING
-                    ? "text-accent-300 fill-accent-300 bg-accent-700"
-                    : row.original.status === TaskStatusEnum.DONE
-                      ? "outline-1 outline-accent-400 text-accent-300"
-                      : "bg-secondary/25 text-accent-700"
-                }
-                `}
-              variant="outline"
-            >
-              {TaskDescriptionEnum[row.original.status]}
-            </Badge>
-            {/* </p> */}
-          </div>
+          <EditTaskDialog task={row.original} />
         </div>
       );
     },
@@ -103,24 +130,20 @@ export const columns = columnHelper.columns([
     cell: ({ row }) => {
       return (
         <div className="flex items-center justify-center gap-1 p-0.5">
-          <div className="">
-            {row.original.status !== TaskStatusEnum.DONE ? (
-              <DoneUndoneTaskButton
-                task={row.original}
-                icon={Square}
-                status={TaskStatusEnum.DONE}
-              />
-            ) : (
-              <DoneUndoneTaskButton
-                task={row.original}
-                icon={SquareCheck}
-                status={TaskStatusEnum.PENDING}
-              />
-            )}
-          </div>
-          <div className="">
-            <DeleteTaskButton task={row.original} />
-          </div>
+          {row.original.status !== TaskStatusEnum.DONE ? (
+            <DoneUndoneTaskButton
+              task={row.original}
+              icon={Square}
+              status={TaskStatusEnum.DONE}
+            />
+          ) : (
+            <DoneUndoneTaskButton
+              task={row.original}
+              icon={SquareCheck}
+              status={TaskStatusEnum.PENDING}
+            />
+          )}
+          <DeleteTaskButton task={row.original} />
         </div>
       );
     },
