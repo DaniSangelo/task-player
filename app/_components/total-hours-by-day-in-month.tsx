@@ -18,7 +18,6 @@ import { MonthlyWorkedHoursByDay } from "../_data-access/tasks/get-tasks";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { formatSecondsToTime } from "../_lib/shared/helper";
-import Link from "next/link";
 
 const months = [
   [
@@ -31,7 +30,7 @@ const months = [
     { name: "May", value: 4 },
     { name: "Jun", value: 5 },
     { name: "Jul", value: 6 },
-    { name: "Ago", value: 7 },
+    { name: "Aug", value: 7 },
   ],
   [
     { name: "Sep", value: 8 },
@@ -85,31 +84,34 @@ const TotalHoursByDayInMonth = ({
             <span className="font-semibold">{getMonth()}</span>
           </CardDescription>
         </div>
-        <div className="flex">
+        <div className="flex justify-center min-h-0">
           {months.map((quarter, index) => {
             return (
-              <div
-                key={index}
-                className="rounded-lg border border-secondary-50 m-1 grid grid-cols-2 max-w-28"
-              >
-                {/* {quarter} */}
-                {quarter.map((month) => {
-                  const isSelected = selectedMonth === month.value;
-                  return (
-                    <button
-                      type="button"
-                      className={`p-2 m-0.5 font-semibold cursor-pointer transition-all hover:scale-105 rounded-md ${
-                        isSelected
-                          ? "bg-secondary/50 text-primary font-bold"
-                          : "hover:bg-accent/10"
-                      }`}
-                      key={month.name}
-                      onClick={(e) => handleSelectMonth(e, month.value)}
-                    >
-                      {month.name}
-                    </button>
-                  );
-                })}
+              <div key={index} className="flex flex-col col-span-3">
+                <div
+                  key={index}
+                  className="rounded-lg border border-secondary-50 m-1 grid grid-cols-2 max-w-28"
+                >
+                  {/* {quarter} */}
+                  {quarter.map((month) => {
+                    const isSelected = selectedMonth === month.value;
+                    return (
+                      <button
+                        type="button"
+                        className={`p-2 m-0.5 font-semibold cursor-pointer transition-all hover:scale-105 rounded-md ${
+                          isSelected
+                            ? "bg-secondary/50 text-primary font-bold"
+                            : "hover:bg-accent/10"
+                        }`}
+                        key={month.name}
+                        onClick={(e) => handleSelectMonth(e, month.value)}
+                      >
+                        {month.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="flex justify-center text-xs text-accent-900/30">{`${index+1}°`} quarter</p>
               </div>
             );
           })}
