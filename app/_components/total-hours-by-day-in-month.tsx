@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
   ChartContainer,
@@ -18,6 +18,7 @@ import { MonthlyWorkedHoursByDay } from "../_data-access/tasks/get-tasks";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { formatSecondsToTime } from "../_lib/shared/helper";
+import Link from "next/link";
 
 const months = [
   [
@@ -61,7 +62,7 @@ const TotalHoursByDayInMonth = ({
   const searchParams = useSearchParams();
 
   const handleSelectMonth = (e: React.MouseEvent, monthValue: number) => {
-    e.preventDefault()
+    e.preventDefault();
     const params = new URLSearchParams(searchParams.toString());
     params.set("month", monthValue.toString());
     router.push(`${path}?${params.toString()}`, { scroll: false });
@@ -69,17 +70,20 @@ const TotalHoursByDayInMonth = ({
 
   const getMonth = (): string => {
     const params = new URLSearchParams(searchParams.toString());
-    const month = params.get('month')
+    const month = params.get("month");
     const date = month ? new Date(2026, +month, 1) : new Date();
-    return format(date, 'MMMM');
-  }
+    return format(date, "MMMM");
+  };
 
   return (
     <Card className="py-0 rounded-lg ">
       <CardHeader className="flex flex-col items-stretch p-0! sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:py-0!">
           <CardTitle>Total hours per day for the month</CardTitle>
-          <CardDescription>Displaying data for the month of <span className="font-semibold">{getMonth()}</span></CardDescription>
+          <CardDescription>
+            Displaying data for the month of{" "}
+            <span className="font-semibold">{getMonth()}</span>
+          </CardDescription>
         </div>
         <div className="flex">
           {months.map((quarter, index) => {
@@ -144,8 +148,8 @@ const TotalHoursByDayInMonth = ({
               tickLine={false}
               axisLine={false}
               tickFormatter={(val) => {
-                const {hours, minutes } = formatSecondsToTime(val * 3600)
-                return `${hours}:${minutes}`
+                const { hours, minutes } = formatSecondsToTime(val * 3600);
+                return `${hours}:${minutes}`;
               }}
               dataKey="total_hours"
             />
@@ -169,10 +173,7 @@ const TotalHoursByDayInMonth = ({
                     // 'entry.payload' contém o objeto de dados completo daquela linha atual
                     const formattedTime = entry.payload.total_in_time;
 
-                    return [
-                      `${formattedTime} hrs `,
-                      "worked"
-                    ];
+                    return [`${formattedTime} hrs `, "worked"];
                   }}
                   labelFormatter={(label) => `Day ${label}`}
                 />
@@ -182,7 +183,7 @@ const TotalHoursByDayInMonth = ({
               dataKey="total_hours"
               fill={`var(--color-total_hours)`}
               radius={4}
-              className="hover:bg-amber-200"
+              className="cursor-pointer"
             >
               {/* <LabelList
                 dataKey="total_in_time"
@@ -191,6 +192,25 @@ const TotalHoursByDayInMonth = ({
                 className="fill-foreground font-medium"
                 fontSize={12}
               /> */}
+              {chartData.map((entry, index) => {
+                return (
+                  <Cell
+                    key={`cell-${index}`}
+                    className="cursor-pointer transition-colors"
+                    onClick={() => {
+                      const params = new URLSearchParams(
+                        searchParams.toString(),
+                      );
+                      const monthParam = params.get("month");
+                      const currentMonth =
+                        monthParam !== null ? +monthParam : selectedMonth;
+
+                      const date = new Date(2026, currentMonth, +entry.day);
+                      router.push(`/tasks?date=${format(date, "yyyy-MM-dd")}`);
+                    }}
+                  />
+                );
+              })}
             </Bar>
           </BarChart>
         </ChartContainer>
