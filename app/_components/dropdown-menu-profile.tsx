@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
@@ -11,13 +11,14 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { TooltipContent, Tooltip, TooltipTrigger } from "./ui/tooltip";
 
 const DropdownMenuProfile = () => {
-
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const handleSignout = async () => {
     await signOut({ redirectTo: "/auth/login" });
@@ -28,17 +29,28 @@ const DropdownMenuProfile = () => {
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button variant="none" size="sm">
-              <Avatar
-                className="flex justify-center items-center border-accent-900"
-                size="lg"
-              >
-                <AvatarImage src="https://github.com/shadcn.png" />
-                <AvatarFallback>
-                  <UserRound size={24} className="text-accent-600" />
-                </AvatarFallback>
-              </Avatar>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button variant="none" size="sm">
+                    <Avatar
+                      className="flex justify-center items-center border-accent-900"
+                      size="lg"
+                    >
+                      {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                      <AvatarFallback>
+                        <UserRound size={24} className="text-accent-600" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                }
+              />
+              <TooltipContent className="bg-secondary-100 text-accent-700 rounded-lg" sideOffset={2} side="right">
+                {session?.user?.id && (
+                  <p>{`Welcome, ${session?.user?.name}`}</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
           }
         />
         <DropdownMenuContent>
