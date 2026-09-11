@@ -18,6 +18,7 @@ import DoneUndoneTaskButton from "../../_components/done-undone-task.button";
 import { Badge } from "../../_components/ui/badge";
 import { Dialog, DialogTrigger } from "@/app/_components/ui/dialog";
 import EditTaskForm from "@/app/_components/edit-task-form";
+import { Input } from "@/app/_components/ui/input";
 
 const columnHelper = createColumnHelper<DataTableFeatures, TaskTableRow>();
 
@@ -99,11 +100,12 @@ export const columns = columnHelper.columns([
           >
             details
           </label>
-          <input
+          <Input
             id={`details-${row.original.id}`}
-            className="w-full outline-0 pt-0.75 pb-1.5 text-[11px] border-b border-b-accent-50 focus:border-b-accent-500"
             defaultValue={row.original.description || ""}
             placeholder="Adicionar uma descrição..."
+            disabled
+            className="w-full outline-0 pt-0.75 pb-1.5 text-[11px] border-b border-b-accent-50 focus:border-b-accent-500 disabled:text-primary-900"
           />
         </div>
       );
